@@ -260,6 +260,10 @@ composer run deploy
 composer run worker
 ```
 
+## Railway
+
+Для Railway см. [docs/railway.md](/Users/pc/Documents/laravel_projects/farmer-products/docs/railway.md:1).
+
 Для боевого сервера лучше запускать worker через `supervisor` или `systemd`.
 
 ### 4. Что должно быть включено в production
