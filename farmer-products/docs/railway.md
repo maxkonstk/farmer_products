@@ -42,6 +42,7 @@
 ## Что уже добавлено в репозиторий
 
 - `.env.railway.example` с базовым набором переменных;
+- `composer.json` явно требует `ext-pgsql`, чтобы Railpack установил PostgreSQL extension для PHP;
 - `railway/pre-deploy.sh` только для миграций;
 - `railway/run-worker.sh` для `queue:work`;
 - `railway/run-cron.sh` для `schedule:work`.
@@ -116,3 +117,4 @@ chmod +x ./railway/run-cron.sh && ./railway/run-cron.sh
 - Если хочешь совсем простой старт без отдельного worker, можно временно поставить `QUEUE_CONNECTION=sync`, но тогда уведомления перестанут идти через очередь.
 - Если позже захочешь горизонтальное масштабирование и общее хранилище медиа, лучше вынести изображения в S3/R2-совместимое публичное object storage и отдельно адаптировать код проекта под это.
 - Railway предлагает переменные из `.env*` только из корня репозитория. Так как приложение лежит в подпапке, `.env.railway.example` из `farmer-products` удобнее использовать как локальную шпаргалку и переносить значения в UI вручную.
+- Если в логах было `could not find driver` или `PDOException` при подключении к Postgres, причина как раз в отсутствии PostgreSQL extension в PHP runtime. В текущем состоянии репозитория это уже учтено через `ext-pgsql` в `composer.json`.
