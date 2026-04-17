@@ -1,120 +1,110 @@
 # Деплой на Railway
 
-Этот проект подготовлен под Railway в конфигурации:
+Проект переведен на явный Docker-based deploy. Это убирает зависимость от Railpack autodetect и его `npm ci`/PHP startup логики.
 
-- `app service` для HTTP-трафика;
-- `worker service` для очереди Laravel;
-- `Postgres` как основная база;
-- `Volume` для `storage/app/public`, чтобы не терялись загружаемые изображения;
-- `cron service` опционально, если позже появятся задачи в планировщике.
+Текущая схема:
+
+- `app service` обслуживает HTTP;
+- `worker service` обрабатывает очередь;
+- `Postgres` хранит данные;
+- `Volume` монтируется в `storage/app/public` для загруженных изображений;
+- `cron service` опционален.
 
 ## Важно для этого репозитория
 
-Текущий Laravel-проект лежит не в корне git-репозитория, а в подпапке `farmer-products`.
+Laravel-приложение лежит не в корне git-репозитория, а в подпапке `farmer-products`.
 
-Поэтому для каждого кодового сервиса Railway нужно явно задать `Root Directory`:
+Для каждого кодового сервиса укажи:
 
 ```text
-/farmer-products
+Root Directory = /farmer-products
 ```
 
-Если этого не сделать, Railway попытается собирать корень монорепозитория, увидит только папку `farmer-products/` и не найдет `composer.json` в корне сборки.
+Без этого Railway будет собирать корень монорепозитория, а не само приложение.
 
-## Важно про Pre-Deploy и storage
+## Что теперь отвечает за деплой
 
-У Railway `Pre-Deploy Command` выполняется в отдельном контейнере:
+- `Dockerfile` собирает production image;
+- `railway.json` это конфиг `app service`;
+- `railway.worker.json` это конфиг `worker service`;
+- `railway.cron.json` это конфиг `cron service`;
+- `railway/pre-deploy.sh` выполняет миграции;
+- `railway/start-app.sh` поднимает Apache на Railway `PORT`;
+- `railway/run-worker.sh` запускает `queue:work`;
+- `railway/run-cron.sh` запускает `schedule:work`.
 
-- изменения файловой системы из `Pre-Deploy` не попадают в runtime-контейнер;
-- volume в `Pre-Deploy` не монтируется.
+## Почему теперь не используется Railpack
 
-Поэтому в `Pre-Deploy` для этого проекта нужно оставлять только миграции БД.
-
-`storage:link` туда выносить нельзя: ссылка не сохранится. Для `app service` это не проблема, потому что стандартный Laravel startup у Railpack сам создает storage symlink при запуске контейнера.
-
-По этой же причине в `.env.railway.example` включен `RAILPACK_SKIP_MIGRATIONS=true`: миграции идут через Railway `Pre-Deploy`, а не вторым проходом во время старта HTTP-сервиса.
-
-## Почему нужен volume
-
-Проект хранит загружаемые изображения товаров и категорий на диске `public`, а Railway использует эфемерный файловый слой. Без volume изображения, загруженные из админки, исчезнут после redeploy или рестарта.
-
-Для текущей реализации bucket Railway не является drop-in заменой: bucket приватный, а проект ожидает обычные публичные URL картинок через `/storage/...`.
-
-## Что уже добавлено в репозиторий
-
-- `.env.railway.example` с базовым набором переменных;
-- `composer.json` явно требует `ext-pgsql`, чтобы Railpack установил PostgreSQL extension для PHP;
-- `railway/pre-deploy.sh` только для миграций;
-- `railway/run-worker.sh` для `queue:work`;
-- `railway/run-cron.sh` для `schedule:work`.
+Railway официально всегда использует `Dockerfile`, если он найден в корне source directory. Также Railway позволяет задавать отдельный config-as-code файл для каждого сервиса. Это удобно для одного репозитория с `app` и `worker`, которым нужен один и тот же image, но разные start-команды.
 
 ## App service
 
-1. Создай проект в Railway.
-2. Добавь сервис `Postgres`.
-3. Создай сервис из GitHub-репозитория этого проекта.
-4. В `Settings` задай `Root Directory` = `/farmer-products`.
-5. В `Build` укажи `Custom Build Command`:
+1. Создай проект Railway.
+2. Добавь `Postgres`.
+3. Создай сервис из GitHub-репозитория.
+4. Укажи `Root Directory = /farmer-products`.
+5. Не задавай `Custom Build Command`.
+6. Не задавай `Custom Start Command`.
+7. Проверь, что сервис использует обычный `railway.json` из проекта.
+8. Добавь Volume и смонтируй его в:
 
-```sh
-npm run build
+```text
+/var/www/html/storage/app/public
 ```
 
-6. Не задавай `Custom Start Command` для `app service`.
-
-Railway сам поднимет Laravel HTTP-сервис штатным способом. Это важно: именно этот стартовый flow создает `public/storage` symlink в runtime-контейнере.
-
-7. Добавь Volume и смонтируй его в `/app/storage/app/public`.
-8. В `Variables` вставь значения из `.env.railway.example` вручную.
-9. Установи:
+9. В `Variables` перенеси значения из `.env.railway.example`.
+10. Обязательно заполни:
    - `APP_KEY` из `php artisan key:generate --show`;
-   - `APP_URL` в публичный домен Railway;
+   - `APP_URL` публичным доменом Railway;
    - `DB_URL` как `${{Postgres.DATABASE_URL}}`.
-10. В `Deploy -> Pre-Deploy Command` укажи:
+11. В `Networking` создай public domain.
 
-```sh
-chmod +x ./railway/pre-deploy.sh && ./railway/pre-deploy.sh
-```
-
-11. Сгенерируй публичный домен в `Networking`.
-
-Только `app service` нужен публичный домен.
+Для `app service` отдельный `Start Command` не нужен: контейнер стартует через `railway/start-app.sh`.
 
 ## Worker service
 
-Создай второй сервис из того же репозитория и задай `Custom Start Command`:
+1. Создай второй сервис из того же репозитория.
+2. Укажи `Root Directory = /farmer-products`.
+3. В `Settings` для config-as-code укажи custom config path:
 
-```sh
-chmod +x ./railway/run-worker.sh && ./railway/run-worker.sh
+```text
+/farmer-products/railway.worker.json
 ```
 
-Переменные окружения должны совпадать с `app service`, потому что worker использует ту же БД, очередь и mail-конфиг.
+4. Не задавай `Custom Start Command`.
+5. Скопируй те же переменные окружения, что и у `app service`.
 
-Для worker тоже нужно поставить `Root Directory` = `/farmer-products`.
-
-Отдельный volume worker сейчас не нужен: текущие queued job в проекте отправляют email и не работают с загруженными файлами. Если позже в очередь будут вынесены задачи, которые читают или пишут `storage/app/public`, подключи тот же volume и к worker.
+Отдельный volume worker сейчас не нужен. Если позже jobs начнут читать или писать `storage/app/public`, подключи тот же volume и сюда.
 
 ## Cron service
 
-Сейчас в проекте нет задач планировщика, поэтому отдельный cron service не обязателен.
+Если понадобится always-on планировщик:
 
-Если он понадобится позже, используй `Custom Start Command`:
+1. Создай еще один сервис из этого же репозитория.
+2. Укажи `Root Directory = /farmer-products`.
+3. Укажи custom config path:
 
-```sh
-chmod +x ./railway/run-cron.sh && ./railway/run-cron.sh
+```text
+/farmer-products/railway.cron.json
 ```
 
-Если позже появятся редкие задачи, которым достаточно запуска не чаще чем раз в 5 минут, дешевле использовать нативный Railway Cron Job и команду `php artisan schedule:run`. Если нужна обычная Laravel-модель с минутной точностью, оставляй отдельный always-on service с `schedule:work`.
+Если задачи редкие, вместо отдельного always-on cron-сервиса можно использовать Railway Cron Job с командой `php artisan schedule:run`.
+
+## Почему нужен volume
+
+Изображения товаров и категорий пишутся в `storage/app/public`. Без volume они исчезнут после redeploy или рестарта контейнера.
+
+Bucket Railway здесь не является прямой заменой, потому что текущее приложение рассчитывает на публичные URL через `/storage/...`.
 
 ## Проверка после деплоя
 
-1. Открой `/up` и главную страницу.
-2. Авторизуйся в админке и загрузи тестовое изображение товара.
-3. Оформи тестовый заказ.
-4. Убедись, что job исчезает из таблицы `jobs`, а письмо уходит через worker.
+1. У app service должен открываться `/up`.
+2. Должна открываться главная страница.
+3. В админке должна работать загрузка изображения.
+4. После тестового заказа job должна уходить из таблицы `jobs`, если поднят worker.
 
-## Замечания
+## Переменные и замечания
 
-- Если хочешь совсем простой старт без отдельного worker, можно временно поставить `QUEUE_CONNECTION=sync`, но тогда уведомления перестанут идти через очередь.
-- Если позже захочешь горизонтальное масштабирование и общее хранилище медиа, лучше вынести изображения в S3/R2-совместимое публичное object storage и отдельно адаптировать код проекта под это.
-- Railway предлагает переменные из `.env*` только из корня репозитория. Так как приложение лежит в подпапке, `.env.railway.example` из `farmer-products` удобнее использовать как локальную шпаргалку и переносить значения в UI вручную.
-- Если в логах было `could not find driver` или `PDOException` при подключении к Postgres, причина как раз в отсутствии PostgreSQL extension в PHP runtime. В текущем состоянии репозитория это уже учтено через `ext-pgsql` в `composer.json`.
+- Railway импортирует `.env*` только из корня репозитория, поэтому `.env.railway.example` внутри `farmer-products` используй как шаблон вручную.
+- Миграции теперь запускаются через `railway/pre-deploy.sh` в `app service`, а не через Railpack.
+- Образ сам поднимает Apache на Railway `PORT`, поэтому вручную `PORT` задавать не нужно.
