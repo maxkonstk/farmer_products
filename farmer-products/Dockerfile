@@ -25,7 +25,7 @@ COPY vite.config.js tailwind.config.js postcss.config.js ./
 
 RUN npm run build
 
-FROM php:8.3-apache-bookworm AS runtime
+FROM php:8.4-apache-bookworm AS runtime
 
 ENV APP_ENV=production
 
