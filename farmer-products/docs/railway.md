@@ -94,8 +94,21 @@ php artisan key:generate --show
 3. Убедись, что для базы используется:
 
 ```text
-DATABASE_URL=${{Postgres.DATABASE_URL}}
 DB_CONNECTION=pgsql
+DATABASE_URL=${{<точное-имя-db-service>.DATABASE_URL}}
+```
+
+Здесь нельзя слепо использовать `Postgres`, если сервис базы у тебя называется иначе.
+В Railway reference variable должна ссылаться на реальное имя DB service в проекте, например:
+
+```text
+DATABASE_URL=${{postgres.DATABASE_URL}}
+```
+
+или:
+
+```text
+DATABASE_URL=${{db.DATABASE_URL}}
 ```
 
 4. Если на первом деплое хочешь сразу получить демо-каталог, демо-пользователей и тестовые заказы, временно выставь:
@@ -172,7 +185,7 @@ LOG_STDERR_FORMATTER=\Monolog\Formatter\JsonFormatter
 LOG_LEVEL=info
 
 DB_CONNECTION=pgsql
-DATABASE_URL=${{Postgres.DATABASE_URL}}
+DATABASE_URL=${{<точное-имя-db-service>.DATABASE_URL}}
 
 SESSION_DRIVER=database
 CACHE_STORE=database
@@ -194,7 +207,7 @@ QUEUE_WORKER_TIMEOUT=90
 ## Что делать, если деплой не поднялся
 
 - `APP_KEY` пустой: pre-deploy завершится с ошибкой, заполни `APP_KEY` и redeploy.
-- `DATABASE_URL` не привязан к Postgres: миграции не смогут подключиться к БД.
+- `DATABASE_URL` ссылается на несуществующее имя DB service: Railway подставит пустую строку, и миграции не смогут подключиться к БД.
 - не указан `Root Directory`: Railway будет собирать не `farmer-products`, а корень монорепозитория.
 - не указан `Config as Code Path`: Railway не применит `railway.json` из подпапки.
 - не создан Volume: загруженные изображения будут пропадать после redeploy.

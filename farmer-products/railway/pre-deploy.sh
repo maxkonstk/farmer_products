@@ -15,6 +15,7 @@ fi
 
 if [ -z "${DB_URL:-${DATABASE_URL:-}}" ] && [ -z "${DB_HOST:-}" ]; then
     echo "Database connection is not configured. Set DATABASE_URL/DB_URL or DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD." >&2
+    echo "If you are deploying on Railway, ensure DATABASE_URL references the exact DB service name, for example \${{postgres.DATABASE_URL}}." >&2
     exit 1
 fi
 
