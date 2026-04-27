@@ -57,6 +57,7 @@ RUN mkdir -p \
         storage/framework/views \
         storage/logs \
         bootstrap/cache \
+    && rm -f bootstrap/cache/*.php bootstrap/cache/*.json \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache \
     && chmod +x railway/*.sh \
