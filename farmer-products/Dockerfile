@@ -9,8 +9,7 @@ RUN composer install \
     --no-interaction \
     --prefer-dist \
     --optimize-autoloader \
-    --no-scripts \
-    --ignore-platform-req=ext-pgsql
+    --no-scripts
 
 FROM node:22-bookworm-slim AS frontend
 
@@ -29,7 +28,6 @@ RUN npm run build
 FROM php:8.3-apache-bookworm AS runtime
 
 ENV APP_ENV=production
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 WORKDIR /var/www/html
 
@@ -38,6 +36,10 @@ RUN apt-get update \
         libpq-dev \
     && docker-php-ext-install pdo_pgsql pgsql \
     && a2enmod rewrite headers expires \
+    && sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
+        /etc/apache2/sites-available/*.conf \
+        /etc/apache2/apache2.conf \
+        /etc/apache2/conf-available/*.conf \
     && printf 'ServerName localhost\n' > /etc/apache2/conf-available/servername.conf \
     && a2enconf servername \
     && rm -rf /var/lib/apt/lists/*
@@ -47,8 +49,7 @@ COPY . .
 COPY --from=frontend /app/public/build ./public/build
 COPY railway/apache-vhost.conf /etc/apache2/sites-available/000-default.conf.template
 
-RUN chmod +x ./railway/*.sh \
-    && mkdir -p \
+RUN mkdir -p \
         storage/app/public \
         storage/framework/cache \
         storage/framework/sessions \
@@ -58,6 +59,10 @@ RUN chmod +x ./railway/*.sh \
         bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache \
+    && chmod +x railway/*.sh \
+    && php artisan storage:link --force \
     && php artisan package:discover --ansi
+
+EXPOSE 8080
 
 CMD ["./railway/start-app.sh"]

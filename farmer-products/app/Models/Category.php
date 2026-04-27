@@ -38,8 +38,14 @@ class Category extends Model
             return '/images/products/fallback.svg';
         }
 
-        if (Str::startsWith($this->image, ['http://', 'https://', '/'])) {
+        if (Str::startsWith($this->image, ['http://', 'https://'])) {
             return $this->image;
+        }
+
+        if (Str::startsWith($this->image, '/')) {
+            return file_exists(public_path(ltrim($this->image, '/')))
+                ? $this->image
+                : '/images/products/fallback.svg';
         }
 
         return Storage::disk('public')->url($this->image);

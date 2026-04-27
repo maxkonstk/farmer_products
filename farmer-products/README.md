@@ -17,7 +17,7 @@
 - Laravel 13
 - Blade
 - Eloquent ORM
-- MySQL
+- SQLite / MySQL / PostgreSQL
 - Vite
 - Laravel Breeze
 - очередь Laravel Queue
@@ -125,7 +125,7 @@
 ### Пользователь
 
 - все возможности гостя;
-- доступ к личному кабинету;
+- доступ к личному кабинету после подтверждения email;
 - просмотр истории заказов;
 - доступ к истории заказов только после подтверждения email.
 
@@ -179,8 +179,8 @@
 
 Сидеры создают:
 
-- 6 категорий;
-- 21 товар;
+- 10 категорий;
+- 55 товаров;
 - 2 тестовых пользователя;
 - 2 тестовых заказа.
 
@@ -202,7 +202,18 @@ php artisan key:generate
 
 ### 2. Настройка базы данных
 
-Укажите MySQL-параметры в `.env`:
+Быстрый локальный старт возможен на SQLite:
+
+```bash
+touch database/database.sqlite
+```
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+При необходимости можно переключиться на MySQL или PostgreSQL:
 
 ```env
 DB_CONNECTION=mysql
@@ -238,7 +249,7 @@ composer run dev
 ### 1. Подготовить окружение
 
 - скопировать `.env.production.example` в `.env`;
-- заполнить `APP_KEY`, `APP_URL`, параметры MySQL и SMTP;
+- заполнить `APP_KEY`, `APP_URL`, параметры MySQL/PostgreSQL и SMTP;
 - установить `APP_DEBUG=false`;
 - настроить HTTPS и веб-сервер.
 
@@ -262,9 +273,33 @@ composer run worker
 
 ## Railway
 
-Для Railway см. [docs/railway.md](/Users/pc/Documents/laravel_projects/farmer-products/docs/railway.md:1).
+Railway-конфиг и пошаговая инструкция лежат в [docs/railway.md](docs/railway.md).
 
-Для боевого сервера лучше запускать worker через `supervisor` или `systemd`.
+Коротко по этому репозиторию:
+
+- кодовое приложение находится не в корне git-репозитория, а в подпапке `farmer-products`;
+- для `app` и `worker` сервисов на Railway нужно указать `Root Directory = /farmer-products`;
+- из-за monorepo-структуры нужно явно задать `Config as Code Path`:
+  - `app`: `/farmer-products/railway.json`
+  - `worker`: `/farmer-products/railway.worker.json`
+- для первого деплоя подготовлен Docker-based runtime с `pre-deploy` миграциями, healthcheck `/up` и отдельным queue worker.
+
+## Docker
+
+Для нейтральной контейнерной сборки можно использовать `Dockerfile` из корня проекта:
+
+```bash
+docker build -t farmer-products .
+docker run --rm -p 8080:8080 --env-file .env farmer-products
+```
+
+Для очереди в контейнерном окружении поднимай отдельный worker-процесс или второй контейнер с командой:
+
+```bash
+php artisan queue:work --tries=3 --sleep=1 --timeout=90
+```
+
+Для боевого сервера без контейнеров лучше запускать worker через `supervisor` или `systemd`.
 
 ### 4. Что должно быть включено в production
 

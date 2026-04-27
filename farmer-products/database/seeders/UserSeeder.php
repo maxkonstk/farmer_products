@@ -15,6 +15,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Администратор магазина',
                 'phone' => '+7 (900) 100-10-10',
+                'email_verified_at' => now(),
                 'password' => Hash::make('password'),
                 'is_admin' => true,
             ]
@@ -25,6 +26,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Покупатель демонстрационный',
                 'phone' => '+7 (900) 200-20-20',
+                'email_verified_at' => now(),
                 'password' => Hash::make('password'),
                 'is_admin' => false,
             ]

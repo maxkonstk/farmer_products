@@ -37,7 +37,7 @@ Route::controller(CheckoutController::class)->group(function (): void {
     Route::get('/checkout/success', 'success')->name('checkout.success');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::get('/account/orders', [AccountOrderController::class, 'index'])->name('account.orders.index');
     Route::get('/account/orders/{order}', [AccountOrderController::class, 'show'])->name('account.orders.show');
@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function (): void {
+Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.')->group(function (): void {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('categories', AdminCategoryController::class)->except('show');
     Route::resource('products', AdminProductController::class)->except('show');

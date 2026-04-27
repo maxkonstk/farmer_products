@@ -14,6 +14,7 @@ class AdminAccessTest extends TestCase
     {
         $admin = User::factory()->create([
             'is_admin' => true,
+            'email_verified_at' => now(),
         ]);
 
         $response = $this->actingAs($admin)->get(route('admin.dashboard'));
@@ -25,10 +26,22 @@ class AdminAccessTest extends TestCase
     {
         $user = User::factory()->create([
             'is_admin' => false,
+            'email_verified_at' => now(),
         ]);
 
         $response = $this->actingAs($user)->get(route('admin.dashboard'));
 
         $response->assertRedirect(route('home'));
+    }
+
+    public function test_unverified_admin_is_redirected_to_email_verification_notice(): void
+    {
+        $admin = User::factory()->unverified()->create([
+            'is_admin' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $response->assertRedirect(route('verification.notice'));
     }
 }

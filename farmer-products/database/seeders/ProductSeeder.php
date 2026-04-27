@@ -84,6 +84,12 @@ class ProductSeeder extends Seeder
                 continue;
             }
 
+            $resolvedImage = $product['image'];
+
+            if (str_starts_with($resolvedImage, '/') && ! file_exists(public_path(ltrim($resolvedImage, '/')))) {
+                $resolvedImage = $category->image ?: '/images/products/fallback.svg';
+            }
+
             Product::query()->updateOrCreate(
                 ['slug' => $product['slug']],
                 [
@@ -91,7 +97,7 @@ class ProductSeeder extends Seeder
                     'name' => $product['name'],
                     'description' => $product['description'],
                     'price' => $product['price'],
-                    'image' => $product['image'],
+                    'image' => $resolvedImage,
                     'weight' => $product['weight'],
                     'stock' => $product['stock'],
                     'is_active' => true,

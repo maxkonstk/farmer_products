@@ -11,7 +11,7 @@
 
     <div class="form-group form-group--full">
         <label for="image" class="form-label">Путь к изображению</label>
-        <input id="image" type="text" name="image" value="{{ old('image', $category->image ?? '') }}" class="form-control" placeholder="/images/categories/vegetables.jpg">
+        <input id="image" type="text" name="image" value="{{ old('image', $category->image ?? '') }}" class="form-control" placeholder="/images/products/vegetables.svg">
     </div>
 
     <div class="form-group form-group--full">

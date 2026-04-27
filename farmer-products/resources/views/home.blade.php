@@ -36,7 +36,7 @@
             </div>
 
             <div class="hero-card hero-card--issue">
-                <img src="/images/hero/farm-market.jpg" alt="Фермерские продукты" class="hero-card__image">
+                <img src="/images/products/hero-farm.svg" alt="Фермерские продукты" class="hero-card__image">
                 <div class="hero-card__content">
                     <p class="hero-card__label">Номер сезона</p>
                     <h2 class="hero-card__headline">Сезонный набор продуктов без перегруженной витрины</h2>

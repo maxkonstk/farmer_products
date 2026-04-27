@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,8 +27,20 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-        $request->user()->save();
+        $user = $request->user();
+        $validated = $request->validated();
+
+        $user->fill($validated);
+
+        if ($user instanceof MustVerifyEmail && $user->isDirty('email')) {
+            $user->forceFill([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'email_verified_at' => null,
+            ])->save();
+        } else {
+            $user->save();
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
