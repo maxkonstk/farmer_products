@@ -35,6 +35,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libpq-dev \
     && docker-php-ext-install pdo_pgsql pgsql \
+    && a2dismod mpm_event mpm_worker || true \
+    && a2enmod mpm_prefork \
     && a2enmod rewrite headers expires \
     && sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
         /etc/apache2/sites-available/*.conf \
