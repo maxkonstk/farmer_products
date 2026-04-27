@@ -25,7 +25,7 @@ COPY vite.config.js tailwind.config.js postcss.config.js ./
 
 RUN npm run build
 
-FROM php:8.4-apache-bookworm AS runtime
+FROM php:8.4-cli-bookworm AS runtime
 
 ENV APP_ENV=production
 
@@ -35,21 +35,11 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libpq-dev \
     && docker-php-ext-install pdo_pgsql pgsql \
-    && a2dismod mpm_event mpm_worker || true \
-    && a2enmod mpm_prefork \
-    && a2enmod rewrite headers expires \
-    && sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
-        /etc/apache2/sites-available/*.conf \
-        /etc/apache2/apache2.conf \
-        /etc/apache2/conf-available/*.conf \
-    && printf 'ServerName localhost\n' > /etc/apache2/conf-available/servername.conf \
-    && a2enconf servername \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=vendor /app/vendor ./vendor
 COPY . .
 COPY --from=frontend /app/public/build ./public/build
-COPY railway/apache-vhost.conf /etc/apache2/sites-available/000-default.conf.template
 
 RUN mkdir -p \
         storage/app/public \
