@@ -35,8 +35,18 @@
 
             <div class="farm-grid">
                 @foreach ($farmers as $farmer)
+                    @php($imageAttributes = \App\Support\ImageMetadata::attributes($farmer['image_url'] ?? $farmer['image']))
                     <article class="farm-card">
-                        <img src="{{ $farmer['image_url'] ?? $farmer['image'] }}" alt="{{ $farmer['name'] }}" class="farm-card__image">
+                        <img
+                            src="{{ $farmer['image_url'] ?? $farmer['image'] }}"
+                            alt="{{ $farmer['name'] }}"
+                            class="farm-card__image"
+                            width="{{ $imageAttributes['width'] }}"
+                            height="{{ $imageAttributes['height'] }}"
+                            loading="lazy"
+                            decoding="async"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                        >
                         <div>
                             <p class="farm-card__eyebrow">{{ $farmer['location'] }}</p>
                             <h3>{{ $farmer['name'] }}</h3>

@@ -9,6 +9,7 @@ use App\Models\FaqItem;
 use App\Models\Farmer;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\PromoBlock;
 use App\Models\Testimonial;
 use Illuminate\View\View;
 
@@ -26,6 +27,8 @@ class DashboardController extends Controller
             'farmers' => Farmer::query()->count(),
             'testimonials' => Testimonial::query()->count(),
             'faq_items' => FaqItem::query()->count(),
+            'promo_blocks' => PromoBlock::query()->count(),
+            'active_promos' => PromoBlock::query()->published()->activeWindow()->count(),
         ];
 
         $recentOrders = Order::query()

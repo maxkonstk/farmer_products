@@ -44,6 +44,14 @@
             <span>FAQ</span>
             <strong>{{ $stats['faq_items'] }}</strong>
         </article>
+        <article class="stat-card">
+            <span>Промо-блоки</span>
+            <strong>{{ $stats['promo_blocks'] }}</strong>
+        </article>
+        <article class="stat-card">
+            <span>Активные промо</span>
+            <strong>{{ $stats['active_promos'] }}</strong>
+        </article>
     </div>
 
     <div class="admin-grid">

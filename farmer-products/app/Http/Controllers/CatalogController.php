@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\PromoBlock;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -86,6 +87,27 @@ class CatalogController extends Controller
 
         $products = $products->paginate(12)->withQueryString();
 
+        $catalogPromos = PromoBlock::query()
+            ->with(['category', 'collection', 'product'])
+            ->published()
+            ->activeWindow()
+            ->forPlacement('catalog')
+            ->orderBy('sort_order')
+            ->get();
+
+        $catalogPromo = $catalogPromos->first(function (PromoBlock $promo) use ($selectedCategory, $selectedCollection): bool {
+            if ($selectedCollection && $promo->collection_id === $selectedCollection->id) {
+                return true;
+            }
+
+            if ($selectedCategory && $promo->category_id === $selectedCategory->id) {
+                return true;
+            }
+
+            return false;
+        }) ?? $catalogPromos->first(fn (PromoBlock $promo): bool => ! $promo->category_id && ! $promo->collection_id && ! $promo->product_id)
+            ?? $catalogPromos->first();
+
         return view('catalog.index', [
             'products' => $products,
             'currentCategory' => $selectedCategory,
@@ -106,6 +128,7 @@ class CatalogController extends Controller
                 ->distinct()
                 ->orderBy('seasonality')
                 ->pluck('seasonality'),
+            'catalogPromo' => $catalogPromo,
         ]);
     }
 }

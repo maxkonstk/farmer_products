@@ -8,6 +8,7 @@
 @php
     $isFavorited = in_array($product->id, $favoriteProductIds ?? [], true);
     $analytics = app(\App\Services\AnalyticsService::class);
+    $mainImageAttributes = \App\Support\ImageMetadata::attributes($product->gallery_urls[0]);
     $breadcrumbItems = [
         ['name' => 'Главная', 'url' => route('home')],
         ['name' => 'Каталог', 'url' => route('catalog.index')],
@@ -95,12 +96,29 @@
         <div class="site-container product-detail product-detail--commerce">
             <div class="product-gallery">
                 <div class="product-gallery__main">
-                    <img src="{{ $product->gallery_urls[0] }}" alt="{{ $product->name }}" class="product-detail__image" fetchpriority="high">
+                    <img
+                        src="{{ $product->gallery_urls[0] }}"
+                        alt="{{ $product->name }}"
+                        class="product-detail__image"
+                        fetchpriority="high"
+                        width="{{ $mainImageAttributes['width'] }}"
+                        height="{{ $mainImageAttributes['height'] }}"
+                        sizes="(max-width: 900px) 100vw, 48vw"
+                    >
                 </div>
                 <div class="product-gallery__thumbs">
                     @foreach ($product->gallery_urls as $galleryImage)
+                        @php($imageAttributes = \App\Support\ImageMetadata::attributes($galleryImage))
                         <div class="product-gallery__thumb">
-                            <img src="{{ $galleryImage }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
+                            <img
+                                src="{{ $galleryImage }}"
+                                alt="{{ $product->name }}"
+                                loading="lazy"
+                                decoding="async"
+                                width="{{ $imageAttributes['width'] }}"
+                                height="{{ $imageAttributes['height'] }}"
+                                sizes="(max-width: 900px) 33vw, 16vw"
+                            >
                         </div>
                     @endforeach
                 </div>

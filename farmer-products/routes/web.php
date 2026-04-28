@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CollectionController as AdminCollectionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\PromoBlockController as AdminPromoBlockController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\StorefrontSettingsController as AdminStorefrontSettingsController;
 use App\Http\Controllers\CartController;
@@ -72,6 +73,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.'
     Route::put('/storefront', [AdminStorefrontSettingsController::class, 'update'])->name('storefront.update');
     Route::resource('categories', AdminCategoryController::class)->except('show');
     Route::resource('collections', AdminCollectionController::class)->except('show');
+    Route::resource('promos', AdminPromoBlockController::class)->except('show');
     Route::resource('farmers', \App\Http\Controllers\Admin\FarmerController::class)->except('show');
     Route::resource('testimonials', \App\Http\Controllers\Admin\TestimonialController::class)->except('show');
     Route::resource('faq-items', \App\Http\Controllers\Admin\FaqItemController::class)->except('show');

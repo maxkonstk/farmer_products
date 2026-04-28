@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\FaqItem;
 use App\Models\Farmer;
+use App\Models\PromoBlock;
 use App\Models\Product;
 use App\Models\Testimonial;
 use App\Services\StorefrontSettingsService;
@@ -46,6 +47,15 @@ class HomeController extends Controller
         $farmers = Farmer::query()->published()->orderBy('sort_order')->orderBy('name')->get();
         $testimonials = Testimonial::query()->published()->orderBy('sort_order')->orderBy('author')->get();
         $faqItems = FaqItem::query()->published()->orderBy('sort_order')->orderBy('id')->get();
+        $homePromos = PromoBlock::query()
+            ->with(['category', 'collection', 'product'])
+            ->published()
+            ->activeWindow()
+            ->forPlacement('home')
+            ->orderBy('sort_order')
+            ->latest()
+            ->take(3)
+            ->get();
         $delivery = $this->storefrontSettings->delivery();
 
         return view('home', [
@@ -57,6 +67,7 @@ class HomeController extends Controller
             'testimonials' => $testimonials->isNotEmpty() ? $testimonials->toArray() : config('shop.testimonials', []),
             'faqItems' => $faqItems->isNotEmpty() ? $faqItems->toArray() : config('shop.faq', []),
             'deliveryZones' => $delivery['zones'] ?? [],
+            'homePromos' => $homePromos,
         ]);
     }
 }

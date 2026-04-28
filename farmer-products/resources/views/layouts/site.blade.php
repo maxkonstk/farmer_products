@@ -36,6 +36,7 @@
         @stack('structured_data')
     </head>
     <body class="site-body">
+        <a href="#main-content" class="skip-link">Перейти к содержимому</a>
         <div class="site-shell">
             <header class="site-header" x-data="{ mobileMenuOpen: false }">
                 <div class="site-container issue-bar">
@@ -53,11 +54,11 @@
                         </span>
                     </a>
 
-                    <nav class="site-nav">
-                        <a href="{{ route('home') }}" class="site-nav__link {{ request()->routeIs('home') ? 'is-active' : '' }}">Главная</a>
-                        <a href="{{ route('catalog.index') }}" class="site-nav__link {{ request()->routeIs('catalog.*', 'categories.show', 'products.show') ? 'is-active' : '' }}">Каталог</a>
-                        <a href="{{ route('pages.about') }}" class="site-nav__link {{ request()->routeIs('pages.about') ? 'is-active' : '' }}">О нас</a>
-                        <a href="{{ route('pages.contacts') }}" class="site-nav__link {{ request()->routeIs('pages.contacts') ? 'is-active' : '' }}">Контакты</a>
+                    <nav class="site-nav" aria-label="Основная навигация">
+                        <a href="{{ route('home') }}" class="site-nav__link {{ request()->routeIs('home') ? 'is-active' : '' }}" @if (request()->routeIs('home')) aria-current="page" @endif>Главная</a>
+                        <a href="{{ route('catalog.index') }}" class="site-nav__link {{ request()->routeIs('catalog.*', 'categories.show', 'products.show') ? 'is-active' : '' }}" @if (request()->routeIs('catalog.*', 'categories.show', 'products.show')) aria-current="page" @endif>Каталог</a>
+                        <a href="{{ route('pages.about') }}" class="site-nav__link {{ request()->routeIs('pages.about') ? 'is-active' : '' }}" @if (request()->routeIs('pages.about')) aria-current="page" @endif>О нас</a>
+                        <a href="{{ route('pages.contacts') }}" class="site-nav__link {{ request()->routeIs('pages.contacts') ? 'is-active' : '' }}" @if (request()->routeIs('pages.contacts')) aria-current="page" @endif>Контакты</a>
                     </nav>
 
                     <div class="site-actions">
@@ -82,7 +83,14 @@
                             <a href="{{ route('register') }}" class="btn btn-light">Регистрация</a>
                         @endauth
 
-                        <button type="button" class="mobile-menu-button" @click="mobileMenuOpen = ! mobileMenuOpen" aria-label="Открыть меню">
+                        <button
+                            type="button"
+                            class="mobile-menu-button"
+                            @click="mobileMenuOpen = ! mobileMenuOpen"
+                            aria-controls="site-mobile-menu"
+                            :aria-expanded="mobileMenuOpen.toString()"
+                            :aria-label="mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'"
+                        >
                             <span></span>
                             <span></span>
                             <span></span>
@@ -91,7 +99,7 @@
                 </div>
 
                 @if ($navigationCategories->isNotEmpty())
-                    <div class="site-container category-strip">
+                    <div class="site-container category-strip" aria-label="Категории каталога">
                         @foreach ($navigationCategories as $navCategory)
                             <a href="{{ route('categories.show', $navCategory['slug']) }}" class="category-pill {{ request()->routeIs('categories.show') && request()->route('category')?->slug === $navCategory['slug'] ? 'is-active' : '' }}">
                                 {{ $navCategory['name'] }}
@@ -100,26 +108,26 @@
                     </div>
                 @endif
 
-                <div class="mobile-menu" x-show="mobileMenuOpen" x-transition.origin.top @click.outside="mobileMenuOpen = false" x-cloak>
-                    <a href="{{ route('home') }}" class="mobile-menu__link">Главная</a>
-                    <a href="{{ route('catalog.index') }}" class="mobile-menu__link">Каталог</a>
-                    <a href="{{ route('pages.about') }}" class="mobile-menu__link">О нас</a>
-                    <a href="{{ route('pages.contacts') }}" class="mobile-menu__link">Контакты</a>
+                <div id="site-mobile-menu" class="mobile-menu" x-show="mobileMenuOpen" x-transition.origin.top @click.outside="mobileMenuOpen = false" x-cloak>
+                    <a href="{{ route('home') }}" class="mobile-menu__link" @click="mobileMenuOpen = false">Главная</a>
+                    <a href="{{ route('catalog.index') }}" class="mobile-menu__link" @click="mobileMenuOpen = false">Каталог</a>
+                    <a href="{{ route('pages.about') }}" class="mobile-menu__link" @click="mobileMenuOpen = false">О нас</a>
+                    <a href="{{ route('pages.contacts') }}" class="mobile-menu__link" @click="mobileMenuOpen = false">Контакты</a>
                     @auth
-                        <a href="{{ route('dashboard') }}" class="mobile-menu__link">Кабинет</a>
+                        <a href="{{ route('dashboard') }}" class="mobile-menu__link" @click="mobileMenuOpen = false">Кабинет</a>
                         @if (auth()->user()->is_admin)
-                            <a href="{{ route('admin.dashboard') }}" class="mobile-menu__link">Админ-панель</a>
+                            <a href="{{ route('admin.dashboard') }}" class="mobile-menu__link" @click="mobileMenuOpen = false">Админ-панель</a>
                         @endif
                     @else
-                        <a href="{{ route('login') }}" class="mobile-menu__link">Войти</a>
-                        <a href="{{ route('register') }}" class="mobile-menu__link">Регистрация</a>
+                        <a href="{{ route('login') }}" class="mobile-menu__link" @click="mobileMenuOpen = false">Войти</a>
+                        <a href="{{ route('register') }}" class="mobile-menu__link" @click="mobileMenuOpen = false">Регистрация</a>
                     @endauth
                 </div>
             </header>
 
             @include('partials.flash')
 
-            <main class="site-main">
+            <main id="main-content" class="site-main" tabindex="-1">
                 @yield('content')
             </main>
 

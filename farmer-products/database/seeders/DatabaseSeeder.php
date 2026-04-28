@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             FaqItemSeeder::class,
             ProductSeeder::class,
             CollectionSeeder::class,
+            PromoBlockSeeder::class,
             OrderSeeder::class,
         ]);
     }

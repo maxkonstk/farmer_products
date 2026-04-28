@@ -8,7 +8,7 @@
 
 @if ($errors->any())
     <div class="site-container">
-        <div class="flash flash--error">
+        <div class="flash flash--error" role="alert" aria-live="assertive">
             <div class="flash__title">Проверьте данные формы</div>
             <ul class="flash__list">
                 @foreach ($errors->all() as $error)
@@ -22,7 +22,7 @@
 @foreach ($flashMessages as $key => $class)
     @if (session($key))
         <div class="site-container">
-            <div class="flash {{ $class }}">{{ session($key) }}</div>
+            <div class="flash {{ $class }}" @if ($key === 'error') role="alert" aria-live="assertive" @else role="status" aria-live="polite" @endif>{{ session($key) }}</div>
         </div>
     @endif
 @endforeach

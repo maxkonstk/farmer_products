@@ -20,5 +20,6 @@ class AdminContentAccessTest extends TestCase
         $this->actingAs($admin)->get(route('admin.farmers.index'))->assertOk();
         $this->actingAs($admin)->get(route('admin.testimonials.index'))->assertOk();
         $this->actingAs($admin)->get(route('admin.faq-items.index'))->assertOk();
+        $this->actingAs($admin)->get(route('admin.promos.index'))->assertOk();
     }
 }

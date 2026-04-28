@@ -18,7 +18,7 @@
 @endpush
 
 @section('content')
-    <section class="page-section">
+    <section class="page-section page-section--has-mobile-summary">
         <div
             class="site-container checkout-layout"
             x-data="{
@@ -40,35 +40,37 @@
                 <h1 class="page-title">Подтвердите контактные данные и удобный способ получения</h1>
                 <p class="page-subtitle">После отправки мы вручную подтверждаем заказ, проверяем остатки по партии и связываемся с вами до отгрузки.</p>
 
-                <form method="POST" action="{{ route('checkout.store') }}" class="form-card">
+                <form method="POST" action="{{ route('checkout.store') }}" class="form-card" id="checkout-form">
                     @csrf
 
                     <div class="form-grid">
                         <div class="form-group form-group--full">
-                            <label class="form-label">Способ получения</label>
-                            <div class="checkout-option-grid">
-                                <label class="checkout-option">
-                                    <input type="radio" name="fulfillment_method" value="delivery" @checked(old('fulfillment_method', 'delivery') === 'delivery')>
-                                    <span>Доставка по Самаре</span>
-                                </label>
-                                <label class="checkout-option">
-                                    <input type="radio" name="fulfillment_method" value="pickup" @checked(old('fulfillment_method') === 'pickup')>
-                                    <span>Самовывоз из лавки</span>
-                                </label>
-                            </div>
+                            <fieldset class="checkout-fieldset">
+                                <legend class="form-label">Способ получения</legend>
+                                <div class="checkout-option-grid">
+                                    <label class="checkout-option">
+                                        <input type="radio" name="fulfillment_method" value="delivery" @checked(old('fulfillment_method', 'delivery') === 'delivery')>
+                                        <span>Доставка по Самаре</span>
+                                    </label>
+                                    <label class="checkout-option">
+                                        <input type="radio" name="fulfillment_method" value="pickup" @checked(old('fulfillment_method') === 'pickup')>
+                                        <span>Самовывоз из лавки</span>
+                                    </label>
+                                </div>
+                            </fieldset>
                         </div>
 
                         <div class="form-group">
                             <label for="customer_name" class="form-label">ФИО</label>
-                            <input id="customer_name" type="text" name="customer_name" value="{{ old('customer_name', $user?->name) }}" class="form-control" required>
+                            <input id="customer_name" type="text" name="customer_name" value="{{ old('customer_name', $user?->name) }}" class="form-control" required autocomplete="name" autocapitalize="words" enterkeyhint="next">
                         </div>
                         <div class="form-group">
                             <label for="phone" class="form-label">Телефон</label>
-                            <input id="phone" type="text" name="phone" value="{{ old('phone', $user?->phone) }}" class="form-control" required>
+                            <input id="phone" type="tel" name="phone" value="{{ old('phone', $user?->phone) }}" class="form-control" required autocomplete="tel" inputmode="tel" enterkeyhint="next">
                         </div>
                         <div class="form-group">
                             <label for="email" class="form-label">Email</label>
-                            <input id="email" type="email" name="email" value="{{ old('email', $user?->email) }}" class="form-control" required>
+                            <input id="email" type="email" name="email" value="{{ old('email', $user?->email) }}" class="form-control" required autocomplete="email" inputmode="email" enterkeyhint="next" autocapitalize="none">
                         </div>
                         <div class="form-group">
                             <label for="delivery_window" class="form-label">Желаемое окно</label>
@@ -118,12 +120,12 @@
                         @endif
                         <div class="form-group form-group--full">
                             <label for="address" class="form-label">Адрес доставки</label>
-                            <textarea id="address" name="address" rows="3" class="form-control" x-model="address">{{ old('address', $defaultAddress?->formatted_address) }}</textarea>
-                            <p class="form-hint">Для самовывоза адрес можно не заполнять: заказ будет ждать вас по адресу {{ $shopDelivery['pickup_address'] }}.</p>
+                            <textarea id="address" name="address" rows="3" class="form-control" x-model="address" aria-describedby="address-hint" autocomplete="street-address" autocapitalize="words" enterkeyhint="next">{{ old('address', $defaultAddress?->formatted_address) }}</textarea>
+                            <p id="address-hint" class="form-hint">Для самовывоза адрес можно не заполнять: заказ будет ждать вас по адресу {{ $shopDelivery['pickup_address'] }}.</p>
                         </div>
                         <div class="form-group form-group--full">
                             <label for="comment" class="form-label">Комментарий к заказу</label>
-                            <textarea id="comment" name="comment" rows="4" class="form-control">{{ old('comment') }}</textarea>
+                            <textarea id="comment" name="comment" rows="4" class="form-control" enterkeyhint="done">{{ old('comment') }}</textarea>
                         </div>
                     </div>
 
@@ -158,6 +160,14 @@
                     </ul>
                 </div>
             </aside>
+        </div>
+
+        <div class="mobile-summary-bar" aria-label="Быстрое подтверждение заказа">
+            <div class="mobile-summary-bar__meta">
+                <span>{{ $total_quantity }} позиций</span>
+                <strong>{{ number_format((float) $total_price, 0, ',', ' ') }} ₽</strong>
+            </div>
+            <button type="submit" form="checkout-form" class="btn btn-primary">Подтвердить заказ</button>
         </div>
     </section>
 @endsection

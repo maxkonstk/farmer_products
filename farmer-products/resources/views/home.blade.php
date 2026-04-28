@@ -63,6 +63,7 @@
     @php
         $productCount = $categories->sum('products_count');
         $brand = $shopBrand;
+        $heroImage = \App\Support\ImageMetadata::attributes(asset('images/products/hero-farm.svg'), 1200, 860);
     @endphp
 
     <section class="hero-section hero-section--commerce">
@@ -93,7 +94,15 @@
             </div>
 
             <div class="hero-card hero-card--issue">
-                <img src="/images/products/hero-farm.svg" alt="Сезонные поставки фермерских продуктов" class="hero-card__image" fetchpriority="high">
+                <img
+                    src="/images/products/hero-farm.svg"
+                    alt="Сезонные поставки фермерских продуктов"
+                    class="hero-card__image"
+                    fetchpriority="high"
+                    width="{{ $heroImage['width'] }}"
+                    height="{{ $heroImage['height'] }}"
+                    sizes="(max-width: 900px) 100vw, 46vw"
+                >
                 <div class="hero-card__content">
                     <p class="hero-card__label">Почему это работает</p>
                     <h2 class="hero-card__headline">Не маркетплейс, а короткая цепочка от хозяйства до вашей кухни</h2>
@@ -142,6 +151,26 @@
         </div>
     </section>
 
+    @if ($homePromos->isNotEmpty())
+        <section class="section section--muted">
+            <div class="site-container">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Собранные сценарии недели</p>
+                        <h2 class="section-title">Промо-блоки для живой витрины, а не для статичного лендинга</h2>
+                    </div>
+                    <p class="section-note">Команда магазина может переставлять акценты по сезону, новым партиям и сценариям повторной покупки прямо из админки.</p>
+                </div>
+
+                <div class="promo-grid">
+                    @foreach ($homePromos as $promoBlock)
+                        @include('partials.promo-block', ['promoBlock' => $promoBlock, 'variant' => 'grid'])
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     @if ($featuredCollections->isNotEmpty())
         <section class="section section--muted">
             <div class="site-container">
@@ -155,9 +184,18 @@
 
                 <div class="collection-grid">
                     @foreach ($featuredCollections as $collection)
+                        @php($imageAttributes = \App\Support\ImageMetadata::attributes($collection->image_url, 1200, 860))
                         <a href="{{ route('collections.show', $collection) }}" class="collection-card">
                             <div class="collection-card__media">
-                                <img src="{{ $collection->image_url }}" alt="{{ $collection->name }}" loading="lazy" decoding="async">
+                                <img
+                                    src="{{ $collection->image_url }}"
+                                    alt="{{ $collection->name }}"
+                                    loading="lazy"
+                                    decoding="async"
+                                    width="{{ $imageAttributes['width'] }}"
+                                    height="{{ $imageAttributes['height'] }}"
+                                    sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                                >
                                 @if ($collection->badge)
                                     <span class="product-badge">{{ $collection->badge }}</span>
                                 @endif
@@ -187,8 +225,18 @@
 
             <div class="category-grid">
                 @foreach ($categories as $category)
+                    @php($imageAttributes = \App\Support\ImageMetadata::attributes($category->image_url))
                     <a href="{{ route('categories.show', $category) }}" class="category-card">
-                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="category-card__image" loading="lazy" decoding="async">
+                        <img
+                            src="{{ $category->image_url }}"
+                            alt="{{ $category->name }}"
+                            class="category-card__image"
+                            loading="lazy"
+                            decoding="async"
+                            width="{{ $imageAttributes['width'] }}"
+                            height="{{ $imageAttributes['height'] }}"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                        >
                         <div class="category-card__content">
                             <span class="category-card__kicker">Категория</span>
                             <h3>{{ $category->name }}</h3>
@@ -230,8 +278,18 @@
 
             <div class="farm-grid">
                 @foreach ($farmers as $farmer)
+                    @php($imageAttributes = \App\Support\ImageMetadata::attributes($farmer['image_url'] ?? $farmer['image']))
                     <article class="farm-card">
-                        <img src="{{ $farmer['image_url'] ?? $farmer['image'] }}" alt="{{ $farmer['name'] }}" class="farm-card__image" loading="lazy" decoding="async">
+                        <img
+                            src="{{ $farmer['image_url'] ?? $farmer['image'] }}"
+                            alt="{{ $farmer['name'] }}"
+                            class="farm-card__image"
+                            loading="lazy"
+                            decoding="async"
+                            width="{{ $imageAttributes['width'] }}"
+                            height="{{ $imageAttributes['height'] }}"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                        >
                         <div>
                             <p class="farm-card__eyebrow">{{ $farmer['location'] }}</p>
                             <h3>{{ $farmer['name'] }}</h3>

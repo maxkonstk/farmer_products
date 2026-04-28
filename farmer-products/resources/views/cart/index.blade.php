@@ -20,7 +20,7 @@
 @endpush
 
 @section('content')
-    <section class="page-section">
+    <section class="page-section {{ $is_empty ? '' : 'page-section--has-mobile-summary' }}">
         <div class="site-container">
             <div class="page-intro">
                 <div>
@@ -40,8 +40,18 @@
                 <div class="cart-layout">
                     <div class="cart-items">
                         @foreach ($items as $item)
+                            @php($imageAttributes = \App\Support\ImageMetadata::attributes($item['product']->image_url))
                             <article class="cart-item">
-                                <img src="{{ $item['product']->image_url }}" alt="{{ $item['product']->name }}" class="cart-item__image" loading="lazy" decoding="async">
+                                <img
+                                    src="{{ $item['product']->image_url }}"
+                                    alt="{{ $item['product']->name }}"
+                                    class="cart-item__image"
+                                    loading="lazy"
+                                    decoding="async"
+                                    width="{{ $imageAttributes['width'] }}"
+                                    height="{{ $imageAttributes['height'] }}"
+                                    sizes="(max-width: 900px) 8rem, 9rem"
+                                >
                                 <div class="cart-item__content">
                                     <div>
                                         <h2 class="cart-item__title">{{ $item['product']->name }}</h2>
@@ -55,7 +65,8 @@
                                         <form method="POST" action="{{ route('cart.update', $item['product']) }}" class="cart-quantity-form">
                                             @csrf
                                             @method('PATCH')
-                                            <input type="number" name="quantity" min="1" max="{{ $item['product']->stock }}" value="{{ $item['quantity'] }}" class="form-control form-control--small">
+                                            <label for="quantity-{{ $item['product']->id }}" class="sr-only">Количество товара {{ $item['product']->name }}</label>
+                                            <input id="quantity-{{ $item['product']->id }}" type="number" name="quantity" min="1" max="{{ $item['product']->stock }}" value="{{ $item['quantity'] }}" class="form-control form-control--small" inputmode="numeric" enterkeyhint="done">
                                             <button type="submit" class="btn btn-outline">Обновить</button>
                                         </form>
 
@@ -101,6 +112,14 @@
                             </form>
                         </div>
                     </aside>
+                </div>
+
+                <div class="mobile-summary-bar" aria-label="Быстрое оформление заказа">
+                    <div class="mobile-summary-bar__meta">
+                        <span>{{ $total_quantity }} позиций</span>
+                        <strong>{{ number_format((float) $total_price, 0, ',', ' ') }} ₽</strong>
+                    </div>
+                    <a href="{{ route('checkout.create') }}" class="btn btn-primary">Перейти к оформлению</a>
                 </div>
             @endif
         </div>

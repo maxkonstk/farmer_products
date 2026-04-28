@@ -1,8 +1,20 @@
-@php($isFavorited = in_array($product->id, $favoriteProductIds ?? [], true))
+@php
+    $isFavorited = in_array($product->id, $favoriteProductIds ?? [], true);
+    $imageAttributes = \App\Support\ImageMetadata::attributes($product->image_url);
+@endphp
 
 <article class="product-card">
     <a href="{{ route('products.show', $product) }}" class="product-card__image-wrap">
-        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="product-card__image" loading="lazy" decoding="async">
+        <img
+            src="{{ $product->image_url }}"
+            alt="{{ $product->name }}"
+            class="product-card__image"
+            loading="lazy"
+            decoding="async"
+            width="{{ $imageAttributes['width'] }}"
+            height="{{ $imageAttributes['height'] }}"
+            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+        >
         @if ($product->badge)
             <span class="product-badge">{{ $product->badge }}</span>
         @endif

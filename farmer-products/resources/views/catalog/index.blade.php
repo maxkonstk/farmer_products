@@ -22,6 +22,15 @@
     if ($currentCollection) {
         $breadcrumbItems[] = ['name' => $currentCollection->name, 'url' => route('collections.show', $currentCollection)];
     }
+
+    $activeFilterCount = collect([
+        $search !== '',
+        ! $currentCategory && filled(request('category')),
+        ! $currentCollection && filled(request('collection')),
+        $selectedSeasonality !== '',
+        $availability !== '',
+        $sort !== 'latest',
+    ])->filter()->count();
 @endphp
 
 @push('structured_data')
@@ -101,7 +110,7 @@
 
 @section('content')
     <section class="page-section">
-        <div class="site-container">
+        <div class="site-container" x-data="{ filtersOpen: false }" @keydown.escape.window="filtersOpen = false">
             <div class="page-intro">
                 <div>
                     <p class="eyebrow">{{ $currentCollection ? 'Коллекция' : ($currentCategory ? 'Категория каталога' : 'Весь ассортимент') }}</p>
@@ -114,7 +123,24 @@
                 </div>
             </div>
 
-            <form method="GET" class="filter-panel">
+            @if ($catalogPromo)
+                <div class="promo-inline-wrap">
+                    @include('partials.promo-block', ['promoBlock' => $catalogPromo, 'variant' => 'inline'])
+                </div>
+            @endif
+
+            <button
+                type="button"
+                class="filter-toggle"
+                aria-controls="catalog-filters"
+                :aria-expanded="filtersOpen.toString()"
+                @click="filtersOpen = ! filtersOpen"
+            >
+                <span>{{ $activeFilterCount > 0 ? "Фильтры · {$activeFilterCount}" : 'Показать фильтры' }}</span>
+                <span class="filter-toggle__hint">Поиск, сезонность, наличие</span>
+            </button>
+
+            <form method="GET" id="catalog-filters" class="filter-panel" :class="{ 'is-open': filtersOpen }">
                 @if (! $currentCategory)
                     <div class="form-group">
                         <label for="category" class="form-label">Категория</label>
@@ -141,7 +167,7 @@
 
                 <div class="form-group">
                     <label for="q" class="form-label">Поиск по товарам</label>
-                    <input id="q" type="text" name="q" value="{{ $search }}" class="form-control" placeholder="Например, молоко, мед, хлеб">
+                    <input id="q" type="search" name="q" value="{{ $search }}" class="form-control" placeholder="Например, молоко, мед, хлеб" inputmode="search" enterkeyhint="search" spellcheck="false" autocapitalize="none">
                 </div>
                 <div class="form-group">
                     <label for="season" class="form-label">Сезонность</label>
@@ -169,6 +195,7 @@
                     </select>
                 </div>
                 <div class="filter-panel__actions">
+                    <button type="button" class="btn btn-ghost filter-panel__dismiss" @click="filtersOpen = false">Скрыть фильтры</button>
                     <button type="submit" class="btn btn-primary">Применить</button>
                     <a href="{{ $currentCollection ? route('collections.show', $currentCollection) : ($currentCategory ? route('categories.show', $currentCategory) : route('catalog.index')) }}" class="btn btn-outline">Сбросить</a>
                 </div>
