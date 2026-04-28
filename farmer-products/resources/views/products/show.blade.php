@@ -129,6 +129,15 @@
             <article class="product-section-card">
                 <p class="eyebrow">Происхождение и вкус</p>
                 <h2>Что важно знать до покупки</h2>
+                @if ($product->collections->isNotEmpty())
+                    <div class="product-collection-list">
+                        @foreach ($product->collections as $collection)
+                            <a href="{{ route('collections.show', $collection) }}" class="category-pill">
+                                {{ $collection->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
                 <dl class="meta-list">
                     <div>
                         <dt>Хозяйство</dt>

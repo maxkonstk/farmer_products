@@ -11,7 +11,7 @@
     <div class="product-card__body">
         <div class="product-card__meta">
             <span>{{ $product->category->name }}</span>
-            <span>{{ $product->weight ?: 'Вес уточняется' }}</span>
+            <span>{{ $product->collections->first()?->name ?? ($product->weight ?: 'Вес уточняется') }}</span>
         </div>
 
         <h3 class="product-card__title">

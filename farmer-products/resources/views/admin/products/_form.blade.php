@@ -13,6 +13,23 @@
         <input id="name" type="text" name="name" value="{{ old('name', $product->name ?? '') }}" class="form-control" required>
     </div>
 
+    <div class="form-group form-group--full">
+        <label for="collection_ids" class="form-label">Коллекции и подборки</label>
+        <select id="collection_ids" name="collection_ids[]" class="form-control" multiple size="{{ min(max($collections->count(), 3), 8) }}">
+            @php
+                $selectedCollectionIds = collect(old('collection_ids', $product->collections?->pluck('id')->all() ?? []))
+                    ->map(fn ($id) => (int) $id)
+                    ->all();
+            @endphp
+            @foreach ($collections as $collectionOption)
+                <option value="{{ $collectionOption->id }}" @selected(in_array($collectionOption->id, $selectedCollectionIds, true))>
+                    {{ $collectionOption->name }}
+                </option>
+            @endforeach
+        </select>
+        <p class="form-hint">Используйте `Cmd/Ctrl` для выбора нескольких подборок.</p>
+    </div>
+
     <div class="form-group">
         <label for="price" class="form-label">Цена</label>
         <input id="price" type="number" name="price" min="0" step="0.01" value="{{ old('price', $product->price ?? '') }}" class="form-control" required>

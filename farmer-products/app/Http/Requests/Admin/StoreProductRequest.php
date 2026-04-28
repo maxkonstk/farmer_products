@@ -19,6 +19,8 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'category_id' => ['required', 'exists:categories,id'],
+            'collection_ids' => ['nullable', 'array'],
+            'collection_ids.*' => ['integer', 'exists:collections,id'],
             'name' => ['required', 'string', 'max:150', Rule::unique('products', 'name')],
             'description' => ['required', 'string', 'min:20'],
             'producer_name' => ['nullable', 'string', 'max:120'],

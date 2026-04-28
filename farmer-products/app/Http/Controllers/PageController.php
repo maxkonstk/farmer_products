@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\FaqItem;
 use App\Models\Farmer;
 use App\Models\Product;
@@ -70,6 +71,16 @@ class PageController extends Controller
                 'lastmod' => $category->updated_at,
             ]);
 
+        $collections = Collection::query()
+            ->published()
+            ->activeWindow()
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->map(fn (Collection $collection) => [
+                'loc' => route('collections.show', $collection),
+                'lastmod' => $collection->updated_at,
+            ]);
+
         $products = Product::query()->active()->orderBy('updated_at', 'desc')->get()
             ->map(fn (Product $product) => [
                 'loc' => route('products.show', $product),
@@ -78,7 +89,7 @@ class PageController extends Controller
 
         return response()
             ->view('sitemap', [
-                'urls' => collect($urls)->concat($categories)->concat($products),
+                'urls' => collect($urls)->concat($categories)->concat($collections)->concat($products),
             ])
             ->header('Content-Type', 'application/xml');
     }

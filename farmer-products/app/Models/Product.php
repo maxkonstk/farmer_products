@@ -72,6 +72,12 @@ class Product extends Model
             ->withTimestamps();
     }
 
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class)
+            ->withTimestamps();
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

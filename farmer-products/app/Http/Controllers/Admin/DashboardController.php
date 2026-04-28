@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\FaqItem;
 use App\Models\Farmer;
 use App\Models\Order;
@@ -18,6 +19,7 @@ class DashboardController extends Controller
         $stats = [
             'categories' => Category::query()->count(),
             'products' => Product::query()->count(),
+            'collections' => Collection::query()->count(),
             'orders' => Order::query()->count(),
             'new_orders' => Order::query()->where('status', 'new')->count(),
             'revenue' => (float) Order::query()->sum('total_price'),

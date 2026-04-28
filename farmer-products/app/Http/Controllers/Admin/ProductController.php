@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,15 +32,19 @@ class ProductController extends Controller
     public function create(): View
     {
         $categories = Category::query()->orderBy('name')->get();
+        $collections = Collection::query()->orderBy('sort_order')->orderBy('name')->get();
 
-        return view('admin.products.create', compact('categories'));
+        return view('admin.products.create', compact('categories', 'collections'));
     }
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
         $data = $this->normalizePayload($request->validated(), $request);
+        $collectionIds = $data['collection_ids'] ?? [];
+        unset($data['collection_ids']);
 
-        Product::query()->create($data);
+        $product = Product::query()->create($data);
+        $product->collections()->sync($collectionIds);
 
         return redirect()->route('admin.products.index')->with('success', 'Товар успешно создан.');
     }
@@ -47,15 +52,20 @@ class ProductController extends Controller
     public function edit(Product $product): View
     {
         $categories = Category::query()->orderBy('name')->get();
+        $collections = Collection::query()->orderBy('sort_order')->orderBy('name')->get();
+        $product->load('collections:id');
 
-        return view('admin.products.edit', compact('product', 'categories'));
+        return view('admin.products.edit', compact('product', 'categories', 'collections'));
     }
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
         $data = $this->normalizePayload($request->validated(), $request, $product);
+        $collectionIds = $data['collection_ids'] ?? [];
+        unset($data['collection_ids']);
 
         $product->update($data);
+        $product->collections()->sync($collectionIds);
 
         return redirect()->route('admin.products.index')->with('success', 'Товар обновлен.');
     }
@@ -79,6 +89,11 @@ class ProductController extends Controller
     {
         $validated['is_active'] = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['collection_ids'] = collect($validated['collection_ids'] ?? [])
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
         $validated['highlights'] = $this->parseMultilineField($validated['highlights'] ?? null);
         $validated['gallery'] = $this->parseMultilineField($validated['gallery'] ?? null);
 

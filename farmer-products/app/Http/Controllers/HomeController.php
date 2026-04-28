@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\FaqItem;
 use App\Models\Farmer;
 use App\Models\Product;
@@ -14,12 +15,22 @@ class HomeController extends Controller
     public function index(): View
     {
         $featuredProducts = Product::query()
-            ->with('category')
+            ->with(['category', 'collections'])
             ->active()
             ->featured()
             ->where('stock', '>', 0)
             ->latest()
             ->take(8)
+            ->get();
+
+        $featuredCollections = Collection::query()
+            ->withCount(['products' => fn ($query) => $query->active()->where('stock', '>', 0)])
+            ->published()
+            ->featured()
+            ->activeWindow()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->take(3)
             ->get();
 
         $categories = Category::query()
@@ -33,6 +44,7 @@ class HomeController extends Controller
 
         return view('home', [
             'featuredProducts' => $featuredProducts,
+            'featuredCollections' => $featuredCollections,
             'categories' => $categories,
             'farmers' => $farmers->isNotEmpty() ? $farmers->toArray() : config('shop.farmers', []),
             'promises' => config('shop.promises', []),

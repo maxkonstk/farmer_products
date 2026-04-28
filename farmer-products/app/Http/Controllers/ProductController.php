@@ -12,10 +12,10 @@ class ProductController extends Controller
     {
         abort_unless($product->is_active, Response::HTTP_NOT_FOUND);
 
-        $product->load('category');
+        $product->load(['category', 'collections' => fn ($query) => $query->published()->activeWindow()->orderBy('sort_order')]);
 
         $relatedProducts = Product::query()
-            ->with('category')
+            ->with(['category', 'collections'])
             ->active()
             ->where('category_id', $product->category_id)
             ->whereKeyNot($product->id)
@@ -24,7 +24,7 @@ class ProductController extends Controller
             ->get();
 
         $recommendedProducts = Product::query()
-            ->with('category')
+            ->with(['category', 'collections'])
             ->active()
             ->where('stock', '>', 0)
             ->whereKeyNot($product->id)

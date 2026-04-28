@@ -104,6 +104,39 @@
         </div>
     </section>
 
+    @if ($featuredCollections->isNotEmpty())
+        <section class="section section--muted">
+            <div class="site-container">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Подборки и коллекции</p>
+                        <h2 class="section-title">Готовые сценарии покупки вместо хаотичного каталога</h2>
+                    </div>
+                    <p class="section-note">Собираем тематические наборы под сезон, повседневный заказ и повторные покупки.</p>
+                </div>
+
+                <div class="collection-grid">
+                    @foreach ($featuredCollections as $collection)
+                        <a href="{{ route('collections.show', $collection) }}" class="collection-card">
+                            <div class="collection-card__media">
+                                <img src="{{ $collection->image_url }}" alt="{{ $collection->name }}">
+                                @if ($collection->badge)
+                                    <span class="product-badge">{{ $collection->badge }}</span>
+                                @endif
+                            </div>
+                            <div class="collection-card__content">
+                                <p class="eyebrow">Подборка</p>
+                                <h3>{{ $collection->name }}</h3>
+                                <p>{{ $collection->intro ?: $collection->description }}</p>
+                                <span>{{ $collection->products_count }} товаров в подборке</span>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     <section class="section">
         <div class="site-container">
             <div class="section-heading">

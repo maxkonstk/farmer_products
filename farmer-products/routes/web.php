@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountOrderController;
 use App\Http\Controllers\AccountAddressController;
 use App\Http\Controllers\AccountFavoriteController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CollectionController as AdminCollectionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/categories/{category:slug}', [CatalogController::class, 'category'])->name('categories.show');
+Route::get('/collections/{collection:slug}', [CatalogController::class, 'collection'])->name('collections.show');
 Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/about', [PageController::class, 'about'])->name('pages.about');
 Route::get('/contacts', [PageController::class, 'contacts'])->name('pages.contacts');
@@ -66,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.')->group(function (): void {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('categories', AdminCategoryController::class)->except('show');
+    Route::resource('collections', AdminCollectionController::class)->except('show');
     Route::resource('farmers', \App\Http\Controllers\Admin\FarmerController::class)->except('show');
     Route::resource('testimonials', \App\Http\Controllers\Admin\TestimonialController::class)->except('show');
     Route::resource('faq-items', \App\Http\Controllers\Admin\FaqItemController::class)->except('show');

@@ -1,16 +1,16 @@
 @extends('layouts.site')
 
-@section('title', $currentCategory ? $currentCategory->name : 'Каталог товаров')
-@section('meta_description', $currentCategory?->description ?? 'Каталог локальных фермерских продуктов: овощи, молочка, сыры, мясо, мед, выпечка и сезонные заготовки с доставкой по Самаре.')
+@section('title', $currentCollection?->name ?? ($currentCategory ? $currentCategory->name : 'Каталог товаров'))
+@section('meta_description', $currentCollection?->description ?? ($currentCategory?->description ?? 'Каталог локальных фермерских продуктов: овощи, молочка, сыры, мясо, мед, выпечка и сезонные заготовки с доставкой по Самаре.'))
 
 @section('content')
     <section class="page-section">
         <div class="site-container">
             <div class="page-intro">
                 <div>
-                    <p class="eyebrow">{{ $currentCategory ? 'Категория каталога' : 'Весь ассортимент' }}</p>
-                    <h1 class="page-title">{{ $currentCategory?->name ?? 'Фермерские продукты' }}</h1>
-                    <p class="page-subtitle">{{ $currentCategory?->description ?? 'Ищите продукты по категории, сезонности, цене и наличию. Для каждой карточки показываем происхождение, базовые характеристики и понятный путь к покупке.' }}</p>
+                    <p class="eyebrow">{{ $currentCollection ? 'Коллекция' : ($currentCategory ? 'Категория каталога' : 'Весь ассортимент') }}</p>
+                    <h1 class="page-title">{{ $currentCollection?->name ?? ($currentCategory?->name ?? 'Фермерские продукты') }}</h1>
+                    <p class="page-subtitle">{{ $currentCollection?->description ?? ($currentCategory?->description ?? 'Ищите продукты по категории, сезонности, цене и наличию. Для каждой карточки показываем происхождение, базовые характеристики и понятный путь к покупке.') }}</p>
                 </div>
                 <div class="intro-note">
                     <span>В наличии на витрине</span>
@@ -26,6 +26,18 @@
                             <option value="">Все категории</option>
                             @foreach ($categories as $categoryOption)
                                 <option value="{{ $categoryOption->slug }}" @selected(request('category') === $categoryOption->slug)>{{ $categoryOption->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
+                @if (! $currentCollection)
+                    <div class="form-group">
+                        <label for="collection" class="form-label">Подборка</label>
+                        <select id="collection" name="collection" class="form-control">
+                            <option value="">Все подборки</option>
+                            @foreach ($collections as $collectionOption)
+                                <option value="{{ $collectionOption->slug }}" @selected(request('collection') === $collectionOption->slug)>{{ $collectionOption->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -62,7 +74,7 @@
                 </div>
                 <div class="filter-panel__actions">
                     <button type="submit" class="btn btn-primary">Применить</button>
-                    <a href="{{ $currentCategory ? route('categories.show', $currentCategory) : route('catalog.index') }}" class="btn btn-outline">Сбросить</a>
+                    <a href="{{ $currentCollection ? route('collections.show', $currentCollection) : ($currentCategory ? route('categories.show', $currentCategory) : route('catalog.index')) }}" class="btn btn-outline">Сбросить</a>
                 </div>
             </form>
 

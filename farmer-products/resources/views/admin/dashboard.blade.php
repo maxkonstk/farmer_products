@@ -17,6 +17,10 @@
             <strong>{{ $stats['products'] }}</strong>
         </article>
         <article class="stat-card">
+            <span>Коллекции</span>
+            <strong>{{ $stats['collections'] }}</strong>
+        </article>
+        <article class="stat-card">
             <span>Заказы</span>
             <strong>{{ $stats['orders'] }}</strong>
         </article>

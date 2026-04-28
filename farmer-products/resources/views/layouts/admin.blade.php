@@ -18,6 +18,7 @@
             ['route' => 'admin.dashboard', 'active' => 'admin.dashboard', 'label' => 'Обзор'],
             ['route' => 'admin.categories.index', 'active' => 'admin.categories.*', 'label' => 'Категории'],
             ['route' => 'admin.products.index', 'active' => 'admin.products.*', 'label' => 'Товары'],
+            ['route' => 'admin.collections.index', 'active' => 'admin.collections.*', 'label' => 'Коллекции'],
             ['route' => 'admin.farmers.index', 'active' => 'admin.farmers.*', 'label' => 'Фермеры'],
             ['route' => 'admin.testimonials.index', 'active' => 'admin.testimonials.*', 'label' => 'Отзывы'],
             ['route' => 'admin.faq-items.index', 'active' => 'admin.faq-items.*', 'label' => 'FAQ'],
