@@ -7,16 +7,16 @@
         <div class="site-container">
             <div class="page-intro">
                 <div>
-                    <p class="eyebrow">Корзина покупателя</p>
-                    <h1 class="page-title">Ваш заказ</h1>
-                    <p class="page-subtitle">Изменяйте количество, удаляйте позиции и переходите к оформлению заказа.</p>
+                    <p class="eyebrow">Корзина</p>
+                    <h1 class="page-title">Проверьте состав заказа перед подтверждением</h1>
+                    <p class="page-subtitle">На этом этапе удобно поправить количество, убрать позиции и убедиться, что корзина подходит под ваш слот доставки.</p>
                 </div>
             </div>
 
             @if ($is_empty)
                 <div class="empty-state">
                     <h2>Корзина пока пуста</h2>
-                    <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
+                    <p>Соберите первую корзину из молочки, овощей, зелени и сезонных позиций — после этого появится оформление заказа и выбор способа получения.</p>
                     <a href="{{ route('catalog.index') }}" class="btn btn-primary">Перейти в каталог</a>
                 </div>
             @else
@@ -29,6 +29,9 @@
                                     <div>
                                         <h2 class="cart-item__title">{{ $item['product']->name }}</h2>
                                         <p class="cart-item__meta">{{ $item['product']->category->name }} · {{ $item['product']->weight ?: 'Вес уточняется' }}</p>
+                                        @if ($item['product']->delivery_note)
+                                            <p class="cart-item__hint">{{ $item['product']->delivery_note }}</p>
+                                        @endif
                                     </div>
 
                                     <div class="cart-item__actions">
@@ -63,6 +66,14 @@
                         <div class="summary-card__row">
                             <span>Общая сумма</span>
                             <strong>{{ number_format((float) $total_price, 0, ',', ' ') }} ₽</strong>
+                        </div>
+                        <div class="summary-card__trust">
+                            <p>Что дальше:</p>
+                            <ul class="info-list">
+                                <li>Выберете доставку или самовывоз на следующем шаге.</li>
+                                <li>Согласуем замены, если каких-то позиций не хватит в партии.</li>
+                                <li>Подтвердим заказ вручную и уточним слот звонком.</li>
+                            </ul>
                         </div>
                         <div class="summary-card__actions">
                             <a href="{{ route('checkout.create') }}" class="btn btn-primary btn-full">Оформить заказ</a>

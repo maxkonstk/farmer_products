@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AccountOrderController;
+use App\Http\Controllers\AccountAddressController;
+use App\Http\Controllers\AccountFavoriteController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -20,6 +22,10 @@ Route::get('/categories/{category:slug}', [CatalogController::class, 'category']
 Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/about', [PageController::class, 'about'])->name('pages.about');
 Route::get('/contacts', [PageController::class, 'contacts'])->name('pages.contacts');
+Route::get('/delivery', [PageController::class, 'delivery'])->name('pages.delivery');
+Route::get('/payment', [PageController::class, 'payment'])->name('pages.payment');
+Route::get('/faq', [PageController::class, 'faq'])->name('pages.faq');
+Route::get('/sitemap.xml', [PageController::class, 'sitemap'])->name('sitemap');
 
 Route::prefix('cart')->name('cart.')->controller(CartController::class)->group(function (): void {
     Route::get('/', 'index')->name('index');
@@ -41,17 +47,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::get('/account/orders', [AccountOrderController::class, 'index'])->name('account.orders.index');
     Route::get('/account/orders/{order}', [AccountOrderController::class, 'show'])->name('account.orders.show');
+    Route::post('/account/orders/{order}/repeat', [AccountOrderController::class, 'repeat'])->name('account.orders.repeat');
 });
 
 Route::middleware('auth')->group(function () {
+    Route::prefix('account')->name('account.')->group(function (): void {
+        Route::get('/favorites', [AccountFavoriteController::class, 'index'])->name('favorites.index');
+        Route::post('/favorites/{product}', [AccountFavoriteController::class, 'store'])->name('favorites.store');
+        Route::delete('/favorites/{product}', [AccountFavoriteController::class, 'destroy'])->name('favorites.destroy');
+        Route::resource('addresses', AccountAddressController::class)->except('show');
+    });
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.')->group(function (): void {
+    Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.')->group(function (): void {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('categories', AdminCategoryController::class)->except('show');
+    Route::resource('farmers', \App\Http\Controllers\Admin\FarmerController::class)->except('show');
+    Route::resource('testimonials', \App\Http\Controllers\Admin\TestimonialController::class)->except('show');
+    Route::resource('faq-items', \App\Http\Controllers\Admin\FaqItemController::class)->except('show');
     Route::resource('products', AdminProductController::class)->except('show');
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');

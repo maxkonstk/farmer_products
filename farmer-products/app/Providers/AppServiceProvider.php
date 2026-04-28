@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view): void {
             $navigationCategories = collect();
             $cartItemsCount = 0;
+            $favoriteProductIds = [];
 
             try {
                 if (Schema::hasTable('categories')) {
@@ -61,13 +62,23 @@ class AppServiceProvider extends ServiceProvider
                 if (! app()->runningInConsole()) {
                     $cartItemsCount = app(CartService::class)->count();
                 }
+
+                if (auth()->check() && Schema::hasTable('favorites')) {
+                    $favoriteProductIds = auth()->user()
+                        ->favoriteProducts()
+                        ->pluck('products.id')
+                        ->map(fn ($id): int => (int) $id)
+                        ->all();
+                }
             } catch (Throwable) {
                 $navigationCategories = collect();
                 $cartItemsCount = 0;
+                $favoriteProductIds = [];
             }
 
             $view->with('navigationCategories', $navigationCategories);
             $view->with('cartItemsCount', $cartItemsCount);
+            $view->with('favoriteProductIds', $favoriteProductIds);
         });
     }
 }

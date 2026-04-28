@@ -10,6 +10,9 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
+        $categoryProfiles = $this->categoryProfiles();
+        $productOverrides = $this->productOverrides();
+
         $products = [
             ['category' => 'vegetables', 'name' => 'Помидоры тепличные', 'slug' => 'pomidory-teplichnye', 'price' => 220, 'weight' => '1 кг', 'stock' => 45, 'featured' => true, 'image' => '/images/products/tomatoes.jpg', 'description' => 'Сочные красные помидоры с мягкой мякотью для салатов, закусок и домашней кухни.'],
             ['category' => 'vegetables', 'name' => 'Огурцы свежие', 'slug' => 'ogurcy-svezhie', 'price' => 190, 'weight' => '1 кг', 'stock' => 38, 'featured' => false, 'image' => '/images/products/cucumbers.jpg', 'description' => 'Хрустящие огурцы без горечи, выращенные в фермерской теплице без агрессивной химии.'],
@@ -90,12 +93,35 @@ class ProductSeeder extends Seeder
                 $resolvedImage = $category->image ?: '/images/products/fallback.svg';
             }
 
+            $profile = $categoryProfiles[$product['category']] ?? [];
+            $overrides = $productOverrides[$product['slug']] ?? [];
+            $gallery = collect([
+                $resolvedImage,
+                $category->image,
+                '/images/products/hero-farm.svg',
+            ])->filter()->unique()->values()->all();
+
             Product::query()->updateOrCreate(
                 ['slug' => $product['slug']],
                 [
                     'category_id' => $category->id,
                     'name' => $product['name'],
                     'description' => $product['description'],
+                    'producer_name' => $overrides['producer_name'] ?? ($profile['producer_name'] ?? null),
+                    'origin_location' => $overrides['origin_location'] ?? ($profile['origin_location'] ?? null),
+                    'seasonality' => $overrides['seasonality'] ?? ($profile['seasonality'] ?? null),
+                    'taste_notes' => $overrides['taste_notes'] ?? ($profile['taste_notes'] ?? null),
+                    'storage_info' => $overrides['storage_info'] ?? ($profile['storage_info'] ?? null),
+                    'shelf_life' => $overrides['shelf_life'] ?? ($profile['shelf_life'] ?? null),
+                    'delivery_note' => $overrides['delivery_note'] ?? ($profile['delivery_note'] ?? null),
+                    'badge' => $overrides['badge'] ?? ($product['featured'] ? 'Выбор недели' : ($profile['badge'] ?? null)),
+                    'ingredients' => $overrides['ingredients'] ?? ($profile['ingredients'] ?? 'Натуральный продукт без длинного списка добавок.'),
+                    'highlights' => $overrides['highlights'] ?? [
+                        $profile['highlight_1'] ?? 'Поставка небольшими партиями',
+                        $profile['highlight_2'] ?? 'Понятное происхождение',
+                        $profile['highlight_3'] ?? 'Подходит для ежедневной корзины',
+                    ],
+                    'gallery' => $overrides['gallery'] ?? $gallery,
                     'price' => $product['price'],
                     'image' => $resolvedImage,
                     'weight' => $product['weight'],
@@ -105,5 +131,169 @@ class ProductSeeder extends Seeder
                 ]
             );
         }
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    private function categoryProfiles(): array
+    {
+        return [
+            'vegetables' => [
+                'producer_name' => 'Теплицы «Луговые грядки»',
+                'origin_location' => 'Кинельский район',
+                'seasonality' => 'Апрель — октябрь',
+                'taste_notes' => 'Свежий, хрустящий вкус без долгого хранения.',
+                'storage_info' => 'Хранить в холодильнике при +2…+6 °C.',
+                'shelf_life' => '3–5 дней после доставки',
+                'delivery_note' => 'Собираем в день отгрузки и привозим без длительного склада.',
+                'ingredients' => 'Овощи без дополнительных ингредиентов.',
+                'highlight_1' => 'Урожай с коротким циклом поставки',
+                'highlight_2' => 'Подходит для салатов и домашней кухни',
+                'highlight_3' => 'Доступен для замены только после согласования',
+            ],
+            'fruits' => [
+                'producer_name' => 'Сады «Волжский склон»',
+                'origin_location' => 'Сызранский район',
+                'seasonality' => 'Июль — октябрь',
+                'taste_notes' => 'Сладкий аромат и мягкая зрелость без восковой обработки.',
+                'storage_info' => 'Хранить в прохладном месте, ягоды и мягкие фрукты — в холодильнике.',
+                'shelf_life' => '2–4 дня после доставки',
+                'delivery_note' => 'Выбираем плоды средней зрелости, чтобы они доехали без повреждений.',
+                'ingredients' => 'Фрукты без добавок и глазировки.',
+                'highlight_1' => 'Собираем под ближайшую доставку',
+                'highlight_2' => 'Подходят для завтраков и десертов',
+                'highlight_3' => 'Без лишней обработки перед продажей',
+            ],
+            'berries' => [
+                'producer_name' => 'Ягодное хозяйство «Лесная поляна»',
+                'origin_location' => 'Красноярский район',
+                'seasonality' => 'Июнь — август',
+                'taste_notes' => 'Яркий вкус и высокая хрупкость, поэтому отгружаем малыми партиями.',
+                'storage_info' => 'Хранить в холодильнике и употребить как можно скорее.',
+                'shelf_life' => '1–2 дня после доставки',
+                'delivery_note' => 'Ягоды фасуем непосредственно перед отправкой курьеру.',
+                'ingredients' => 'Свежие ягоды без сахара и добавок.',
+                'highlight_1' => 'Ручной сбор и аккуратная фасовка',
+                'highlight_2' => 'Высокая сезонность и быстрый оборот',
+                'highlight_3' => 'Лучше заказывать к ближайшему слоту доставки',
+            ],
+            'greens' => [
+                'producer_name' => 'Теплицы «Луговые грядки»',
+                'origin_location' => 'Кинельский район',
+                'seasonality' => 'Круглый год, пик май — сентябрь',
+                'taste_notes' => 'Яркий аромат и хруст, которые лучше сохраняются при быстрой доставке.',
+                'storage_info' => 'Хранить в холодильнике в контейнере или перфорированном пакете.',
+                'shelf_life' => '2–3 дня после доставки',
+                'delivery_note' => 'Зелень собираем ближе к рейсу, чтобы она не теряла объем и аромат.',
+                'ingredients' => 'Свежая зелень без заправок и добавок.',
+                'highlight_1' => 'Лучше употребить в первые два дня',
+                'highlight_2' => 'Подходит для салатов и горячих блюд',
+                'highlight_3' => 'Можно указать замену в комментарии к заказу',
+            ],
+            'dairy' => [
+                'producer_name' => 'Семейная ферма Тарасовых',
+                'origin_location' => 'Красноярский район',
+                'seasonality' => 'Круглый год',
+                'taste_notes' => 'Чистый сливочный вкус без длинной переработки.',
+                'storage_info' => 'Хранить при +2…+4 °C.',
+                'shelf_life' => '3–7 дней после доставки',
+                'delivery_note' => 'Везем только в холодовой цепочке и не оставляем без подтверждения у двери.',
+                'ingredients' => 'Натуральный молочный продукт без заменителей молочного жира.',
+                'highlight_1' => 'Короткий состав и ручная фасовка',
+                'highlight_2' => 'Поддерживаем холодовую цепочку до двери',
+                'highlight_3' => 'Менеджер подтверждает дату производства при звонке',
+            ],
+            'cheese' => [
+                'producer_name' => 'Сыроварня «Белый берег»',
+                'origin_location' => 'Красноармейский район',
+                'seasonality' => 'Круглый год',
+                'taste_notes' => 'Сливочный профиль и фермерское созревание без агрессивной стабилизации.',
+                'storage_info' => 'Хранить в холодильнике в бумаге или контейнере.',
+                'shelf_life' => '5–10 дней после доставки',
+                'delivery_note' => 'Сыры отгружаем малыми партиями, чтобы сохранить текстуру и аромат.',
+                'ingredients' => 'Молоко, закваска, фермент, соль.',
+                'highlight_1' => 'Ремесленная сыроварня без массового потока',
+                'highlight_2' => 'Подходит для завтраков и гастрономичных тарелок',
+                'highlight_3' => 'Есть сезонные партии и лимитированные варки',
+            ],
+            'meat' => [
+                'producer_name' => 'Ферма «Степное подворье»',
+                'origin_location' => 'Похвистневский район',
+                'seasonality' => 'Круглый год',
+                'taste_notes' => 'Охлажденный продукт без повторной заморозки.',
+                'storage_info' => 'Хранить при 0…+2 °C и приготовить в ближайшие 48 часов.',
+                'shelf_life' => '1–3 дня после доставки',
+                'delivery_note' => 'Мясо привозим в отдельной холодовой упаковке.',
+                'ingredients' => 'Охлажденное мясо без добавок, кроме указанных на упаковке специй для полуфабрикатов.',
+                'highlight_1' => 'Поддерживаем холодовую цепочку до вручения',
+                'highlight_2' => 'Не отгружаем без подтверждения заказа',
+                'highlight_3' => 'Замены только после согласования',
+            ],
+            'honey' => [
+                'producer_name' => 'Пасека «Тихий лог»',
+                'origin_location' => 'Шигонский район',
+                'seasonality' => 'Май — сентябрь, фасовка круглый год',
+                'taste_notes' => 'Яркий сортовой аромат и натуральная кристаллизация.',
+                'storage_info' => 'Хранить в сухом месте при комнатной температуре.',
+                'shelf_life' => 'До 12 месяцев',
+                'delivery_note' => 'Фасуем в стекло и дополнительно защищаем банку при перевозке.',
+                'ingredients' => 'Натуральный мед и продукты пчеловодства без добавления сиропов.',
+                'highlight_1' => 'Указан сорт и регион сбора',
+                'highlight_2' => 'Подходит для подарочных наборов',
+                'highlight_3' => 'Кристаллизация не считается браком',
+            ],
+            'bakery' => [
+                'producer_name' => 'Пекарня «Старый двор»',
+                'origin_location' => 'Самара',
+                'seasonality' => 'Круглый год',
+                'taste_notes' => 'Свежая выпечка с коротким окном идеальной подачи.',
+                'storage_info' => 'Хранить при комнатной температуре в бумажном пакете.',
+                'shelf_life' => '1–2 дня после доставки',
+                'delivery_note' => 'Выпечку подтверждаем ближе к рейсу, чтобы привезти ее в свежем окне.',
+                'ingredients' => 'Мука, масло, яйца и натуральные ингредиенты без готовых смесей.',
+                'highlight_1' => 'Лучше всего в день доставки',
+                'highlight_2' => 'Есть утренние и вечерние партии',
+                'highlight_3' => 'Можно забронировать под самовывоз',
+            ],
+            'preserves' => [
+                'producer_name' => 'Домашняя кухня «Садовый погребок»',
+                'origin_location' => 'Самара',
+                'seasonality' => 'Круглый год, зависит от урожая',
+                'taste_notes' => 'Домашний вкус без избыточного промышленного сиропа.',
+                'storage_info' => 'Хранить в темном прохладном месте, после вскрытия — в холодильнике.',
+                'shelf_life' => 'До 6 месяцев в закрытой банке',
+                'delivery_note' => 'Банки дополнительно упаковываем для транспортировки по городу.',
+                'ingredients' => 'Сезонные овощи, ягоды или фрукты, сахар или соль, специи.',
+                'highlight_1' => 'Сделано небольшими партиями',
+                'highlight_2' => 'Удобно для кладовой и быстрых ужинов',
+                'highlight_3' => 'Хорошо сочетается с сезонными наборами',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function productOverrides(): array
+    {
+        return [
+            'moloko-fermerskoe-1l' => [
+                'badge' => 'Хит недели',
+                'highlights' => [
+                    'Утренняя дойка и быстрая фасовка',
+                    'Подходит для каш, кофе и выпечки',
+                    'Храним и везем только в холодовой цепочке',
+                ],
+            ],
+            'med-cvetochnyy-naturalnyy' => [
+                'badge' => 'Сезон пасеки',
+                'taste_notes' => 'Легкий цветочный аромат и мягкое послевкусие.',
+            ],
+            'hleb-domashniy-celnozernovoy' => [
+                'badge' => 'Свежая выпечка',
+                'delivery_note' => 'Лучше выбирать ближайший слот или самовывоз в день выпечки.',
+            ],
+        ];
     }
 }

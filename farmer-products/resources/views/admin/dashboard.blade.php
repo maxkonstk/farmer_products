@@ -28,6 +28,18 @@
             <span>Сумма заказов</span>
             <strong>{{ number_format((float) $stats['revenue'], 0, ',', ' ') }} ₽</strong>
         </article>
+        <article class="stat-card">
+            <span>Фермеры</span>
+            <strong>{{ $stats['farmers'] }}</strong>
+        </article>
+        <article class="stat-card">
+            <span>Отзывы</span>
+            <strong>{{ $stats['testimonials'] }}</strong>
+        </article>
+        <article class="stat-card">
+            <span>FAQ</span>
+            <strong>{{ $stats['faq_items'] }}</strong>
+        </article>
     </div>
 
     <div class="admin-grid">

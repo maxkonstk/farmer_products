@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Collection;
 
@@ -160,6 +161,44 @@ class CartService
     public function count(): int
     {
         return (int) collect($this->raw())->sum();
+    }
+
+    /**
+     * @return array{added_items:int,adjusted_items:int,skipped_items:int,total_quantity:int}
+     */
+    public function replaceWithOrder(Order $order): array
+    {
+        $order->loadMissing('items.product');
+
+        $cart = [];
+        $adjustedItems = 0;
+        $skippedItems = 0;
+
+        foreach ($order->items as $item) {
+            $product = $item->product;
+
+            if (! $product || ! $product->is_active || $product->stock < 1) {
+                $skippedItems++;
+                continue;
+            }
+
+            $actualQuantity = min($item->quantity, $product->stock);
+
+            if ($actualQuantity !== $item->quantity) {
+                $adjustedItems++;
+            }
+
+            $cart[$product->id] = $actualQuantity;
+        }
+
+        $this->store($cart);
+
+        return [
+            'added_items' => count($cart),
+            'adjusted_items' => $adjustedItems,
+            'skipped_items' => $skippedItems,
+            'total_quantity' => (int) array_sum($cart),
+        ];
     }
 
     /**

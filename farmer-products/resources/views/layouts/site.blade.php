@@ -1,33 +1,54 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    @php
+        $brand = config('shop.brand');
+        $delivery = config('shop.delivery');
+        $metaDescription = trim((string) $__env->yieldContent('meta_description', $brand['tagline']));
+        $metaTitle = trim((string) $__env->yieldContent('title', config('app.name')));
+        $canonicalUrl = url()->current();
+        $metaImage = trim((string) $__env->yieldContent('meta_image', asset('images/products/hero-farm.svg')));
+    @endphp
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>@yield('title', config('app.name'))</title>
+        <title>{{ $metaTitle }}</title>
+        <meta name="description" content="{{ $metaDescription }}">
+        <link rel="canonical" href="{{ $canonicalUrl }}">
+        <meta property="og:title" content="{{ $metaTitle }}">
+        <meta property="og:description" content="{{ $metaDescription }}">
+        <meta property="og:type" content="@yield('og_type', 'website')">
+        <meta property="og:url" content="{{ $canonicalUrl }}">
+        <meta property="og:image" content="{{ $metaImage }}">
+        <meta property="og:locale" content="ru_RU">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $metaTitle }}">
+        <meta name="twitter:description" content="{{ $metaDescription }}">
+        <meta name="twitter:image" content="{{ $metaImage }}">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @stack('structured_data')
     </head>
     <body class="site-body">
         <div class="site-shell">
             <header class="site-header" x-data="{ mobileMenuOpen: false }">
                 <div class="site-container issue-bar">
-                    <span class="issue-bar__item">Выпуск 04</span>
-                    <span class="issue-bar__item">Журнал сезонных продуктов</span>
-                    <span class="issue-bar__item">Самара · локальные хозяйства · доставка</span>
+                    <span class="issue-bar__item">Самара · локальные хозяйства</span>
+                    <span class="issue-bar__item">{{ $delivery['cutoff'] }}</span>
+                    <span class="issue-bar__item">Доставка и самовывоз без маркетплейсного шума</span>
                 </div>
 
                 <div class="site-container site-header__inner">
                     <a href="{{ route('home') }}" class="brand">
                         <span class="brand__mark">Ф</span>
                         <span>
-                            <span class="brand__title">Фермерская лавка</span>
-                            <span class="brand__subtitle">журнал свежих продуктов и покупок</span>
+                            <span class="brand__title">{{ $brand['name'] }}</span>
+                            <span class="brand__subtitle">{{ $brand['tagline'] }}</span>
                         </span>
                     </a>
 
@@ -49,7 +70,7 @@
                                 <a href="{{ route('admin.dashboard') }}" class="btn btn-light">Админ-панель</a>
                             @endif
 
-                            <a href="{{ route('account.orders.index') }}" class="btn btn-ghost">Мои заказы</a>
+                            <a href="{{ route('dashboard') }}" class="btn btn-ghost">Кабинет</a>
 
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -84,7 +105,7 @@
                     <a href="{{ route('pages.about') }}" class="mobile-menu__link">О нас</a>
                     <a href="{{ route('pages.contacts') }}" class="mobile-menu__link">Контакты</a>
                     @auth
-                        <a href="{{ route('account.orders.index') }}" class="mobile-menu__link">Мои заказы</a>
+                        <a href="{{ route('dashboard') }}" class="mobile-menu__link">Кабинет</a>
                         @if (auth()->user()->is_admin)
                             <a href="{{ route('admin.dashboard') }}" class="mobile-menu__link">Админ-панель</a>
                         @endif
@@ -104,23 +125,24 @@
             <footer class="site-footer">
                 <div class="site-container site-footer__grid">
                     <div>
-                        <p class="site-footer__title">Фермерская лавка</p>
-                        <p class="site-footer__text">Редакционный storefront о сезонных фермерских продуктах: журнал, каталог, корзина, оформление заказа и административная часть в одном проекте.</p>
+                        <p class="site-footer__title">{{ $brand['name'] }}</p>
+                        <p class="site-footer__text">{{ $brand['tagline'] }}</p>
                     </div>
                     <div>
-                        <p class="site-footer__title">Рубрики</p>
+                        <p class="site-footer__title">Покупателям</p>
                         <div class="site-footer__links">
                             <a href="{{ route('catalog.index') }}">Каталог</a>
-                            <a href="{{ route('pages.about') }}">О магазине</a>
-                            <a href="{{ route('pages.contacts') }}">Контакты</a>
+                            <a href="{{ route('pages.delivery') }}">Доставка</a>
+                            <a href="{{ route('pages.payment') }}">Оплата</a>
+                            <a href="{{ route('pages.faq') }}">FAQ</a>
                         </div>
                     </div>
                     <div>
-                        <p class="site-footer__title">Редакция</p>
+                        <p class="site-footer__title">Контакты</p>
                         <div class="site-footer__links">
-                            <span>г. Самара, ул. Садовая, 15</span>
-                            <span>+7 (927) 000-24-24</span>
-                            <span>hello@farm-lavka.local</span>
+                            <span>{{ $brand['address'] }}</span>
+                            <span>{{ $brand['phone'] }}</span>
+                            <span>{{ $brand['email'] }}</span>
                         </div>
                     </div>
                 </div>

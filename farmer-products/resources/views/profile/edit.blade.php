@@ -1,29 +1,33 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Профиль пользователя
-        </h2>
-    </x-slot>
+@extends('layouts.site')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
+@section('title', 'Профиль')
+
+@section('content')
+    <section class="page-section">
+        <div class="site-container">
+            @include('account._nav')
+
+            <div class="page-intro">
+                <div>
+                    <p class="eyebrow">Личный кабинет</p>
+                    <h1 class="page-title">Профиль пользователя</h1>
+                    <p class="page-subtitle">Обновите контакты, смените пароль и управляйте доступом к учетной записи.</p>
+                </div>
+            </div>
+
+            <div class="account-settings-grid">
+                <div class="content-card">
                     @include('profile.partials.update-profile-information-form')
                 </div>
-            </div>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
+                <div class="content-card">
                     @include('profile.partials.update-password-form')
                 </div>
-            </div>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
+                <div class="content-card">
                     @include('profile.partials.delete-user-form')
                 </div>
             </div>
         </div>
-    </div>
-</x-app-layout>
+    </section>
+@endsection

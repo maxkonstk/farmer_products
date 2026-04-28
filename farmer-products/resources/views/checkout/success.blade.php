@@ -8,7 +8,7 @@
             <div class="success-card">
                 <p class="eyebrow">Заказ успешно оформлен</p>
                 <h1 class="page-title">Спасибо за покупку</h1>
-                <p class="page-subtitle">Номер заказа: <strong>{{ $order->order_number }}</strong>. Менеджер свяжется с вами для подтверждения и уточнения деталей доставки.</p>
+                <p class="page-subtitle">Номер заказа: <strong>{{ $order->order_number }}</strong>. Мы уже сохранили состав корзины и свяжемся с вами для подтверждения деталей получения.</p>
 
                 <div class="success-card__meta">
                     <div>
@@ -23,6 +23,18 @@
                         <span>Сумма</span>
                         <strong>{{ number_format((float) $order->total_price, 0, ',', ' ') }} ₽</strong>
                     </div>
+                    <div>
+                        <span>Получение</span>
+                        <strong>{{ $order->fulfillment_method === 'pickup' ? 'Самовывоз' : 'Доставка' }}</strong>
+                    </div>
+                </div>
+
+                <div class="summary-card__trust success-card__details">
+                    <ul class="info-list">
+                        <li>Окно получения: {{ $order->delivery_window ? config('shop.delivery.windows')[$order->delivery_window] ?? $order->delivery_window : 'подтвердим при звонке' }}</li>
+                        <li>Адрес: {{ $order->address }}</li>
+                        <li>Замены: {{ match($order->substitution_preference) { 'best-match' => 'можно подобрать близкую замену', 'remove' => 'лучше убрать отсутствующую позицию', default => 'сначала связаться с покупателем' } }}</li>
+                    </ul>
                 </div>
 
                 <div class="order-list">

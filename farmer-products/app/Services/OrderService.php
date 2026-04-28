@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -66,7 +67,10 @@ class OrderService
                 'customer_name' => $data['customer_name'],
                 'phone' => $data['phone'],
                 'email' => $data['email'],
-                'address' => $data['address'],
+                'address' => $this->resolveAddress($data, $user),
+                'fulfillment_method' => $data['fulfillment_method'],
+                'delivery_window' => $data['delivery_window'] ?? null,
+                'substitution_preference' => $data['substitution_preference'] ?? null,
                 'comment' => $data['comment'] ?? null,
                 'total_price' => $items->sum('line_total'),
                 'status' => OrderStatus::NEW,
@@ -95,5 +99,32 @@ class OrderService
             ->notify(new OrderPlacedNotification($order));
 
         return $order;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function resolveAddress(array $data, ?User $user): string
+    {
+        if ($data['fulfillment_method'] === 'pickup') {
+            return (string) config('shop.delivery.pickup_address');
+        }
+
+        if (filled($data['address'] ?? null)) {
+            return trim((string) $data['address']);
+        }
+
+        if ($user && filled($data['saved_address_id'] ?? null)) {
+            /** @var CustomerAddress|null $savedAddress */
+            $savedAddress = $user->addresses()->find($data['saved_address_id']);
+
+            if ($savedAddress) {
+                return $savedAddress->formatted_address;
+            }
+        }
+
+        throw ValidationException::withMessages([
+            'address' => 'Не удалось определить адрес доставки.',
+        ]);
     }
 }

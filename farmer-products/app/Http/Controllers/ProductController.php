@@ -23,6 +23,20 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        return view('products.show', compact('product', 'relatedProducts'));
+        $recommendedProducts = Product::query()
+            ->with('category')
+            ->active()
+            ->where('stock', '>', 0)
+            ->whereKeyNot($product->id)
+            ->where('is_featured', true)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('products.show', [
+            'product' => $product,
+            'relatedProducts' => $relatedProducts,
+            'recommendedProducts' => $recommendedProducts,
+        ]);
     }
 }

@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\FaqItem;
+use App\Models\Farmer;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Testimonial;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -18,6 +21,9 @@ class DashboardController extends Controller
             'orders' => Order::query()->count(),
             'new_orders' => Order::query()->where('status', 'new')->count(),
             'revenue' => (float) Order::query()->sum('total_price'),
+            'farmers' => Farmer::query()->count(),
+            'testimonials' => Testimonial::query()->count(),
+            'faq_items' => FaqItem::query()->count(),
         ];
 
         $recentOrders = Order::query()

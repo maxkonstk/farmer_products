@@ -12,6 +12,13 @@
             <p><strong>Телефон:</strong> {{ $order->phone }}</p>
             <p><strong>Email:</strong> {{ $order->email }}</p>
             <p><strong>Адрес:</strong> {{ $order->address }}</p>
+            <p><strong>Получение:</strong> {{ $order->fulfillment_method === 'pickup' ? 'Самовывоз' : 'Доставка' }}</p>
+            @if ($order->delivery_window)
+                <p><strong>Окно:</strong> {{ config('shop.delivery.windows')[$order->delivery_window] ?? $order->delivery_window }}</p>
+            @endif
+            @if ($order->substitution_preference)
+                <p><strong>Замены:</strong> {{ $order->substitution_preference === 'best-match' ? 'подобрать близкую замену' : ($order->substitution_preference === 'remove' ? 'убрать отсутствующую позицию' : 'сначала связаться с покупателем') }}</p>
+            @endif
             @if ($order->comment)
                 <p><strong>Комментарий:</strong> {{ $order->comment }}</p>
             @endif

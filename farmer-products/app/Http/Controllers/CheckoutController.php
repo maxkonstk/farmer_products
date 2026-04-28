@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCheckoutRequest;
+use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
@@ -25,9 +26,25 @@ class CheckoutController extends Controller
             return redirect()->route('catalog.index')->with('warning', 'Корзина пуста. Добавьте товары перед оформлением заказа.');
         }
 
+        $user = auth()->user();
+        $savedAddresses = collect();
+        $defaultAddress = null;
+
+        if ($user) {
+            $savedAddresses = $user->addresses()
+                ->orderByDesc('is_default')
+                ->latest()
+                ->get();
+
+            /** @var CustomerAddress|null $defaultAddress */
+            $defaultAddress = $savedAddresses->firstWhere('is_default', true) ?? $savedAddresses->first();
+        }
+
         return view('checkout.create', [
             ...$summary,
-            'user' => auth()->user(),
+            'user' => $user,
+            'savedAddresses' => $savedAddresses,
+            'defaultAddress' => $defaultAddress,
         ]);
     }
 

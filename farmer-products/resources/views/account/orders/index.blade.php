@@ -5,6 +5,8 @@
 @section('content')
     <section class="page-section">
         <div class="site-container">
+            @include('account._nav')
+
             <div class="page-intro">
                 <div>
                     <p class="eyebrow">Личный кабинет</p>
@@ -39,7 +41,13 @@
                                     <td>@include('partials.order-status', ['status' => $order->status])</td>
                                     <td>{{ $order->items_count }}</td>
                                     <td>{{ number_format((float) $order->total_price, 0, ',', ' ') }} ₽</td>
-                                    <td><a href="{{ route('account.orders.show', $order) }}" class="table-link">Подробнее</a></td>
+                                    <td class="table-actions">
+                                        <a href="{{ route('account.orders.show', $order) }}" class="table-link">Подробнее</a>
+                                        <form method="POST" action="{{ route('account.orders.repeat', $order) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-ghost">Повторить</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

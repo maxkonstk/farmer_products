@@ -79,6 +79,8 @@ class ProductController extends Controller
     {
         $validated['is_active'] = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['highlights'] = $this->parseMultilineField($validated['highlights'] ?? null);
+        $validated['gallery'] = $this->parseMultilineField($validated['gallery'] ?? null);
 
         if ($request->hasFile('image_file')) {
             if ($product?->hasManagedImage()) {
@@ -96,8 +98,28 @@ class ProductController extends Controller
             $validated['image'] = $product->image;
         }
 
+        $validated['gallery'] = collect($validated['gallery'] ?? [])
+            ->prepend($validated['image'] ?? $product?->image)
+            ->filter()
+            ->unique()
+            ->take(6)
+            ->values()
+            ->all();
+
         unset($validated['image_file']);
 
         return $validated;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function parseMultilineField(?string $value): array
+    {
+        return collect(preg_split('/\r\n|\r|\n/', (string) $value) ?: [])
+            ->map(fn (string $line) => trim($line))
+            ->filter()
+            ->values()
+            ->all();
     }
 }

@@ -24,18 +24,29 @@ class CatalogController extends Controller
     {
         $search = trim((string) $request->string('q'));
         $sort = (string) $request->string('sort', 'latest');
+        $selectedCategorySlug = (string) $request->string('category');
+        $availability = (string) $request->string('availability');
+        $seasonality = (string) $request->string('season');
+
+        $selectedCategory = $category;
+
+        if (! $selectedCategory && $selectedCategorySlug !== '') {
+            $selectedCategory = Category::query()->firstWhere('slug', $selectedCategorySlug);
+        }
 
         $products = Product::query()
             ->with('category')
             ->active()
-            ->when($category, fn (Builder $query) => $query->where('category_id', $category->id))
+            ->when($selectedCategory, fn (Builder $query) => $query->where('category_id', $selectedCategory->id))
             ->when($search !== '', function (Builder $query) use ($search): void {
                 $query->where(function (Builder $innerQuery) use ($search): void {
                     $innerQuery
                         ->where('name', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%");
                 });
-            });
+            })
+            ->when($availability === 'in-stock', fn (Builder $query) => $query->where('stock', '>', 0))
+            ->when($seasonality !== '', fn (Builder $query) => $query->where('seasonality', 'like', "%{$seasonality}%"));
 
         match ($sort) {
             'price_asc' => $products->orderBy('price'),
@@ -48,9 +59,17 @@ class CatalogController extends Controller
 
         return view('catalog.index', [
             'products' => $products,
-            'currentCategory' => $category,
+            'currentCategory' => $selectedCategory,
             'search' => $search,
             'sort' => $sort,
+            'availability' => $availability,
+            'selectedSeasonality' => $seasonality,
+            'categories' => Category::query()->orderBy('name')->get(),
+            'seasonalityOptions' => Product::query()
+                ->whereNotNull('seasonality')
+                ->distinct()
+                ->orderBy('seasonality')
+                ->pluck('seasonality'),
         ]);
     }
 }

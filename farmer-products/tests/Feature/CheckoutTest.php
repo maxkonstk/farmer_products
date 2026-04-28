@@ -29,6 +29,9 @@ class CheckoutTest extends TestCase
             'customer_name' => 'Тестовый покупатель',
             'phone' => '+7 (927) 123-45-67',
             'email' => 'buyer@example.com',
+            'fulfillment_method' => 'delivery',
+            'delivery_window' => 'tomorrow-day',
+            'substitution_preference' => 'call',
             'address' => 'г. Самара, ул. Лесная, д. 7',
             'comment' => 'Тестовое оформление заказа',
         ]);
@@ -43,6 +46,9 @@ class CheckoutTest extends TestCase
 
         $this->assertNotNull($order->order_number);
         $this->assertStringStartsWith('FL-', $order->order_number);
+        $this->assertSame('delivery', $order->fulfillment_method);
+        $this->assertSame('tomorrow-day', $order->delivery_window);
+        $this->assertSame('call', $order->substitution_preference);
 
         Notification::assertSentOnDemand(OrderPlacedNotification::class);
     }
