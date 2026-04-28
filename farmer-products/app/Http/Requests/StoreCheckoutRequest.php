@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\StorefrontSettingsService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -18,12 +19,14 @@ class StoreCheckoutRequest extends FormRequest
      */
     public function rules(): array
     {
+        $deliveryWindows = app(StorefrontSettingsService::class)->delivery()['windows'] ?? [];
+
         return [
             'customer_name' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', 'min:10', 'max:30'],
             'email' => ['required', 'email', 'max:120'],
             'fulfillment_method' => ['required', Rule::in(['delivery', 'pickup'])],
-            'delivery_window' => ['nullable', Rule::in(array_keys(config('shop.delivery.windows', [])))],
+            'delivery_window' => ['nullable', Rule::in(array_keys($deliveryWindows))],
             'substitution_preference' => ['nullable', Rule::in(['call', 'best-match', 'remove'])],
             'saved_address_id' => [
                 'nullable',

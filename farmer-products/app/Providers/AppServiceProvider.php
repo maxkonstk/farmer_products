@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Category;
 use App\Services\CartService;
+use App\Services\StorefrontSettingsService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -42,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
             $navigationCategories = collect();
             $cartItemsCount = 0;
             $favoriteProductIds = [];
+            $shopBrand = config('shop.brand', []);
+            $shopDelivery = config('shop.delivery', []);
+            $shopPromises = config('shop.promises', []);
 
             try {
                 if (Schema::hasTable('categories')) {
@@ -70,15 +74,26 @@ class AppServiceProvider extends ServiceProvider
                         ->map(fn ($id): int => (int) $id)
                         ->all();
                 }
+
+                $storefrontSettings = app(StorefrontSettingsService::class);
+                $shopBrand = $storefrontSettings->brand();
+                $shopDelivery = $storefrontSettings->delivery();
+                $shopPromises = $storefrontSettings->promises();
             } catch (Throwable) {
                 $navigationCategories = collect();
                 $cartItemsCount = 0;
                 $favoriteProductIds = [];
+                $shopBrand = config('shop.brand', []);
+                $shopDelivery = config('shop.delivery', []);
+                $shopPromises = config('shop.promises', []);
             }
 
             $view->with('navigationCategories', $navigationCategories);
             $view->with('cartItemsCount', $cartItemsCount);
             $view->with('favoriteProductIds', $favoriteProductIds);
+            $view->with('shopBrand', $shopBrand);
+            $view->with('shopDelivery', $shopDelivery);
+            $view->with('shopPromises', $shopPromises);
         });
     }
 }

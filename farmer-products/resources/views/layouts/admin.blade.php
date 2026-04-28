@@ -16,6 +16,7 @@
     @php
         $adminNavigation = [
             ['route' => 'admin.dashboard', 'active' => 'admin.dashboard', 'label' => 'Обзор'],
+            ['route' => 'admin.storefront.edit', 'active' => 'admin.storefront.*', 'label' => 'Витрина'],
             ['route' => 'admin.categories.index', 'active' => 'admin.categories.*', 'label' => 'Категории'],
             ['route' => 'admin.products.index', 'active' => 'admin.products.*', 'label' => 'Товары'],
             ['route' => 'admin.collections.index', 'active' => 'admin.collections.*', 'label' => 'Коллекции'],

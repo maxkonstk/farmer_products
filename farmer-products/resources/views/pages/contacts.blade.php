@@ -4,7 +4,7 @@
 @section('meta_description', 'Контакты фермерской лавки: адрес, часы работы, телефон, email и зоны доставки по Самаре.')
 
 @section('content')
-    @php($brand = config('shop.brand'))
+    @php($brand = $shopBrand)
     <section class="page-section">
         <div class="site-container">
             <div class="page-intro">

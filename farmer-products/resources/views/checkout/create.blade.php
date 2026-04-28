@@ -59,7 +59,7 @@
                             <label for="delivery_window" class="form-label">Желаемое окно</label>
                             <select id="delivery_window" name="delivery_window" class="form-control">
                                 <option value="">Подберем с менеджером</option>
-                                @foreach (config('shop.delivery.windows', []) as $windowKey => $windowLabel)
+                                @foreach (($shopDelivery['windows'] ?? []) as $windowKey => $windowLabel)
                                     <option value="{{ $windowKey }}" @selected(old('delivery_window') === $windowKey)>{{ $windowLabel }}</option>
                                 @endforeach
                             </select>
@@ -104,7 +104,7 @@
                         <div class="form-group form-group--full">
                             <label for="address" class="form-label">Адрес доставки</label>
                             <textarea id="address" name="address" rows="3" class="form-control" x-model="address">{{ old('address', $defaultAddress?->formatted_address) }}</textarea>
-                            <p class="form-hint">Для самовывоза адрес можно не заполнять: заказ будет ждать вас по адресу {{ config('shop.delivery.pickup_address') }}.</p>
+                            <p class="form-hint">Для самовывоза адрес можно не заполнять: заказ будет ждать вас по адресу {{ $shopDelivery['pickup_address'] }}.</p>
                         </div>
                         <div class="form-group form-group--full">
                             <label for="comment" class="form-label">Комментарий к заказу</label>
@@ -137,7 +137,7 @@
                 <div class="summary-card__trust">
                     <p>Что входит в сервис:</p>
                     <ul class="info-list">
-                        @foreach (config('shop.delivery.promises', []) as $promise)
+                        @foreach (($shopDelivery['promises'] ?? []) as $promise)
                             <li>{{ $promise }}</li>
                         @endforeach
                     </ul>

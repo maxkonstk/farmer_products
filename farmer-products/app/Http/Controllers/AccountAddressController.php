@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCustomerAddressRequest;
 use App\Http\Requests\UpdateCustomerAddressRequest;
 use App\Models\CustomerAddress;
+use App\Services\StorefrontSettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class AccountAddressController extends Controller
 {
+    public function __construct(private readonly StorefrontSettingsService $storefrontSettings)
+    {
+    }
+
     public function index(): View
     {
         $addresses = auth()->user()
@@ -24,9 +29,11 @@ class AccountAddressController extends Controller
 
     public function create(): View
     {
+        $brand = $this->storefrontSettings->brand();
+
         return view('account.addresses.create', [
             'address' => new CustomerAddress([
-                'city' => config('shop.brand.city', 'Самара'),
+                'city' => $brand['city'] ?? 'Самара',
             ]),
         ]);
     }

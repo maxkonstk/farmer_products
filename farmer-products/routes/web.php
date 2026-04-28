@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CollectionController as AdminCollectionController
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\StorefrontSettingsController as AdminStorefrontSettingsController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
@@ -65,8 +66,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-    Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.')->group(function (): void {
+Route::prefix('admin')->middleware(['auth', 'verified', 'admin'])->name('admin.')->group(function (): void {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/storefront', [AdminStorefrontSettingsController::class, 'edit'])->name('storefront.edit');
+    Route::put('/storefront', [AdminStorefrontSettingsController::class, 'update'])->name('storefront.update');
     Route::resource('categories', AdminCategoryController::class)->except('show');
     Route::resource('collections', AdminCollectionController::class)->except('show');
     Route::resource('farmers', \App\Http\Controllers\Admin\FarmerController::class)->except('show');

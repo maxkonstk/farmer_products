@@ -7,35 +7,44 @@ use App\Models\Collection;
 use App\Models\FaqItem;
 use App\Models\Farmer;
 use App\Models\Product;
+use App\Services\StorefrontSettingsService;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class PageController extends Controller
 {
+    public function __construct(private readonly StorefrontSettingsService $storefrontSettings)
+    {
+    }
+
     public function about(): View
     {
         $farmers = Farmer::query()->published()->orderBy('sort_order')->orderBy('name')->get();
 
         return view('pages.about', [
             'farmers' => $farmers->isNotEmpty() ? $farmers->toArray() : config('shop.farmers', []),
-            'promises' => config('shop.promises', []),
+            'promises' => $this->storefrontSettings->promises(),
         ]);
     }
 
     public function contacts(): View
     {
+        $delivery = $this->storefrontSettings->delivery();
+
         return view('pages.contacts', [
-            'deliveryZones' => config('shop.delivery.zones', []),
-            'deliveryPromises' => config('shop.delivery.promises', []),
+            'deliveryZones' => $delivery['zones'] ?? [],
+            'deliveryPromises' => $delivery['promises'] ?? [],
         ]);
     }
 
     public function delivery(): View
     {
+        $delivery = $this->storefrontSettings->delivery();
+
         return view('pages.delivery', [
-            'deliveryWindows' => config('shop.delivery.windows', []),
-            'deliveryZones' => config('shop.delivery.zones', []),
-            'deliveryPromises' => config('shop.delivery.promises', []),
+            'deliveryWindows' => $delivery['windows'] ?? [],
+            'deliveryZones' => $delivery['zones'] ?? [],
+            'deliveryPromises' => $delivery['promises'] ?? [],
         ]);
     }
 

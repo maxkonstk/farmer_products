@@ -31,7 +31,7 @@
                     <p>{{ $order->address }}</p>
                     <p><strong>Способ получения:</strong> {{ $order->fulfillment_method === 'pickup' ? 'Самовывоз' : 'Доставка' }}</p>
                     @if ($order->delivery_window)
-                        <p><strong>Окно:</strong> {{ config('shop.delivery.windows')[$order->delivery_window] ?? $order->delivery_window }}</p>
+                        <p><strong>Окно:</strong> {{ $shopDelivery['windows'][$order->delivery_window] ?? $order->delivery_window }}</p>
                     @endif
                 </article>
                 <article class="content-card">

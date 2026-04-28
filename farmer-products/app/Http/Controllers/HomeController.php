@@ -8,10 +8,15 @@ use App\Models\FaqItem;
 use App\Models\Farmer;
 use App\Models\Product;
 use App\Models\Testimonial;
+use App\Services\StorefrontSettingsService;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
+    public function __construct(private readonly StorefrontSettingsService $storefrontSettings)
+    {
+    }
+
     public function index(): View
     {
         $featuredProducts = Product::query()
@@ -41,16 +46,17 @@ class HomeController extends Controller
         $farmers = Farmer::query()->published()->orderBy('sort_order')->orderBy('name')->get();
         $testimonials = Testimonial::query()->published()->orderBy('sort_order')->orderBy('author')->get();
         $faqItems = FaqItem::query()->published()->orderBy('sort_order')->orderBy('id')->get();
+        $delivery = $this->storefrontSettings->delivery();
 
         return view('home', [
             'featuredProducts' => $featuredProducts,
             'featuredCollections' => $featuredCollections,
             'categories' => $categories,
             'farmers' => $farmers->isNotEmpty() ? $farmers->toArray() : config('shop.farmers', []),
-            'promises' => config('shop.promises', []),
+            'promises' => $this->storefrontSettings->promises(),
             'testimonials' => $testimonials->isNotEmpty() ? $testimonials->toArray() : config('shop.testimonials', []),
             'faqItems' => $faqItems->isNotEmpty() ? $faqItems->toArray() : config('shop.faq', []),
-            'deliveryZones' => config('shop.delivery.zones', []),
+            'deliveryZones' => $delivery['zones'] ?? [],
         ]);
     }
 }

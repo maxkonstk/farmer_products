@@ -8,14 +8,14 @@
         {!! json_encode([
             '@context' => 'https://schema.org',
             '@type' => 'Organization',
-            'name' => config('shop.brand.name'),
+            'name' => $shopBrand['name'],
             'url' => route('home'),
-            'telephone' => config('shop.brand.phone'),
-            'email' => config('shop.brand.email'),
+            'telephone' => $shopBrand['phone'],
+            'email' => $shopBrand['email'],
             'address' => [
                 '@type' => 'PostalAddress',
-                'addressLocality' => config('shop.brand.city'),
-                'streetAddress' => config('shop.brand.address'),
+                'addressLocality' => $shopBrand['city'],
+                'streetAddress' => $shopBrand['address'],
             ],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
     </script>
@@ -24,7 +24,7 @@
 @section('content')
     @php
         $productCount = $categories->sum('products_count');
-        $brand = config('shop.brand');
+        $brand = $shopBrand;
     @endphp
 
     <section class="hero-section hero-section--commerce">

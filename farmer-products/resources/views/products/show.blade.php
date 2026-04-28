@@ -18,7 +18,7 @@
             'category' => $product->category->name,
             'brand' => [
                 '@type' => 'Brand',
-                'name' => config('shop.brand.name'),
+                'name' => $shopBrand['name'],
             ],
             'offers' => [
                 '@type' => 'Offer',

@@ -31,7 +31,7 @@
 
                 <div class="summary-card__trust success-card__details">
                     <ul class="info-list">
-                        <li>Окно получения: {{ $order->delivery_window ? config('shop.delivery.windows')[$order->delivery_window] ?? $order->delivery_window : 'подтвердим при звонке' }}</li>
+                        <li>Окно получения: {{ $order->delivery_window ? ($shopDelivery['windows'][$order->delivery_window] ?? $order->delivery_window) : 'подтвердим при звонке' }}</li>
                         <li>Адрес: {{ $order->address }}</li>
                         <li>Замены: {{ match($order->substitution_preference) { 'best-match' => 'можно подобрать близкую замену', 'remove' => 'лучше убрать отсутствующую позицию', default => 'сначала связаться с покупателем' } }}</li>
                     </ul>

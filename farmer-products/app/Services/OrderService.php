@@ -14,7 +14,10 @@ use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
-    public function __construct(private readonly CartService $cartService)
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly StorefrontSettingsService $storefrontSettings,
+    )
     {
     }
 
@@ -107,7 +110,7 @@ class OrderService
     private function resolveAddress(array $data, ?User $user): string
     {
         if ($data['fulfillment_method'] === 'pickup') {
-            return (string) config('shop.delivery.pickup_address');
+            return (string) ($this->storefrontSettings->delivery()['pickup_address'] ?? config('shop.delivery.pickup_address'));
         }
 
         if (filled($data['address'] ?? null)) {

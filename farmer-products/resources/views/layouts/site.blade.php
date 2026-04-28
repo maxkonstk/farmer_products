@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     @php
-        $brand = config('shop.brand');
-        $delivery = config('shop.delivery');
+        $brand = $shopBrand ?? config('shop.brand');
+        $delivery = $shopDelivery ?? config('shop.delivery');
         $metaDescription = trim((string) $__env->yieldContent('meta_description', $brand['tagline']));
         $metaTitle = trim((string) $__env->yieldContent('title', config('app.name')));
         $canonicalUrl = url()->current();
