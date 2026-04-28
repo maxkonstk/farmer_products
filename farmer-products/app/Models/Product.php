@@ -17,6 +17,8 @@ class Product extends Model
     use HasFactory;
     use HasUniqueSlug;
 
+    public const LOW_STOCK_THRESHOLD = 5;
+
     protected $fillable = [
         'category_id',
         'name',
@@ -91,6 +93,29 @@ class Product extends Model
     public function scopeFeatured(Builder $query): void
     {
         $query->where('is_featured', true);
+    }
+
+    public function isOutOfStock(): bool
+    {
+        return $this->stock <= 0;
+    }
+
+    public function isLowStock(): bool
+    {
+        return $this->stock > 0 && $this->stock <= self::LOW_STOCK_THRESHOLD;
+    }
+
+    public function stockState(): string
+    {
+        if ($this->isOutOfStock()) {
+            return 'out';
+        }
+
+        if ($this->isLowStock()) {
+            return 'low';
+        }
+
+        return 'in';
     }
 
     public function getImageUrlAttribute(): string

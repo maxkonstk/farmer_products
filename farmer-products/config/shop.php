@@ -4,6 +4,15 @@ return [
     'order_number_prefix' => env('SHOP_ORDER_PREFIX', 'FL'),
     'navigation_cache_ttl' => (int) env('SHOP_NAVIGATION_CACHE_TTL', 3600),
     'support_email' => env('SHOP_SUPPORT_EMAIL', env('MAIL_FROM_ADDRESS', 'hello@example.com')),
+    'analytics' => [
+        'provider' => env('SHOP_ANALYTICS_PROVIDER', env('SHOP_GTM_CONTAINER_ID') ? 'gtm' : (env('SHOP_GA4_MEASUREMENT_ID') ? 'ga4' : 'none')),
+        'ga_measurement_id' => env('SHOP_GA4_MEASUREMENT_ID'),
+        'gtm_container_id' => env('SHOP_GTM_CONTAINER_ID'),
+        'track_web_vitals' => filter_var(env('SHOP_ANALYTICS_WEB_VITALS', true), FILTER_VALIDATE_BOOLEAN),
+        'debug_mode' => filter_var(env('SHOP_ANALYTICS_DEBUG', false), FILTER_VALIDATE_BOOLEAN),
+        'requires_consent' => filter_var(env('SHOP_ANALYTICS_REQUIRE_CONSENT', true), FILTER_VALIDATE_BOOLEAN),
+        'consent_version' => env('SHOP_COOKIE_CONSENT_VERSION', '2026-04'),
+    ],
     'brand' => [
         'name' => 'Фермерская лавка',
         'tagline' => 'Локальные продукты с понятным происхождением и доставкой по Самаре.',

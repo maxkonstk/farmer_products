@@ -21,6 +21,11 @@ class StorefrontSettingsController extends Controller
 
         return view('admin.storefront-settings.edit', [
             'settings' => $settings,
+            'analyticsProviders' => [
+                'none' => 'Не подключать',
+                'ga4' => 'Google Analytics 4',
+                'gtm' => 'Google Tag Manager',
+            ],
             'brandHoursText' => implode("\n", $settings['brand']['hours'] ?? []),
             'deliveryWindowsText' => collect($settings['delivery']['windows'] ?? [])
                 ->map(fn (string $label, string $key): string => "{$key} | {$label}")
@@ -34,6 +39,7 @@ class StorefrontSettingsController extends Controller
     public function update(UpdateStorefrontSettingsRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        $analyticsProvider = $validated['analytics_provider'];
 
         $record = StorefrontSetting::query()->firstOrNew();
         $record->fill([
@@ -51,6 +57,15 @@ class StorefrontSettingsController extends Controller
             'delivery_zones' => $this->parseLines($validated['delivery_zones']),
             'delivery_promises' => $this->parseLines($validated['delivery_promises']),
             'storefront_promises' => $this->parseLines($validated['storefront_promises']),
+            'analytics_provider' => $analyticsProvider,
+            'ga_measurement_id' => $analyticsProvider === 'ga4' && filled($validated['ga_measurement_id'] ?? null)
+                ? trim((string) $validated['ga_measurement_id'])
+                : null,
+            'gtm_container_id' => $analyticsProvider === 'gtm' && filled($validated['gtm_container_id'] ?? null)
+                ? trim((string) $validated['gtm_container_id'])
+                : null,
+            'track_web_vitals' => (bool) ($validated['track_web_vitals'] ?? false),
+            'analytics_debug' => (bool) ($validated['analytics_debug'] ?? false),
         ])->save();
 
         $this->settingsService->clearCache();

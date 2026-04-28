@@ -36,6 +36,11 @@ class StorefrontSettingsTest extends TestCase
             'delivery_zones' => "Тольятти, Автозаводский район\nТольятти, Центральный район",
             'delivery_promises' => "Собираем заказ после подтверждения.\nПредупреждаем о заменах заранее.",
             'storefront_promises' => "Прямые поставки от небольших хозяйств.\nПрозрачная доставка и подтверждение заказа.",
+            'analytics_provider' => 'gtm',
+            'ga_measurement_id' => '',
+            'gtm_container_id' => 'GTM-TEST123',
+            'track_web_vitals' => '1',
+            'analytics_debug' => '1',
         ]);
 
         $response->assertRedirect(route('admin.storefront.edit'));
@@ -44,12 +49,18 @@ class StorefrontSettingsTest extends TestCase
             'brand_name' => 'Лавка у Волги',
             'brand_city' => 'Тольятти',
             'pickup_address' => 'г. Тольятти, ул. Юбилейная, 5',
+            'analytics_provider' => 'gtm',
+            'gtm_container_id' => 'GTM-TEST123',
         ]);
 
-        $this->get(route('home'))
+        $this->withCookie('shop_cookie_consent', 'accepted:2026-04')->get(route('home'))
             ->assertOk()
             ->assertSee('Лавка у Волги')
-            ->assertSee('Собираем понятную фермерскую корзину с ручным подтверждением заказа.');
+            ->assertSee('Собираем понятную фермерскую корзину с ручным подтверждением заказа.')
+            ->assertSee('GTM-TEST123')
+            ->assertSee('data-analytics-provider="gtm"', false)
+            ->assertSee('data-analytics-web-vitals="true"', false)
+            ->assertSee('data-cookie-consent-state="accepted"', false);
 
         $this->get(route('pages.contacts'))
             ->assertOk()

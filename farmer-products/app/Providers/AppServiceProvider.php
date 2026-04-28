@@ -47,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
             $shopBrand = config('shop.brand', []);
             $shopDelivery = config('shop.delivery', []);
             $shopPromises = config('shop.promises', []);
+            $shopAnalytics = config('shop.analytics', []);
             $analyticsInitialEvents = [];
 
             try {
@@ -81,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
                 $shopBrand = $storefrontSettings->brand();
                 $shopDelivery = $storefrontSettings->delivery();
                 $shopPromises = $storefrontSettings->promises();
+                $shopAnalytics = $storefrontSettings->analytics();
                 $analyticsInitialEvents = app(AnalyticsService::class)->initialEvents();
             } catch (Throwable) {
                 $navigationCategories = collect();
@@ -89,6 +91,7 @@ class AppServiceProvider extends ServiceProvider
                 $shopBrand = config('shop.brand', []);
                 $shopDelivery = config('shop.delivery', []);
                 $shopPromises = config('shop.promises', []);
+                $shopAnalytics = config('shop.analytics', []);
                 $analyticsInitialEvents = [];
             }
 
@@ -98,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('shopBrand', $shopBrand);
             $view->with('shopDelivery', $shopDelivery);
             $view->with('shopPromises', $shopPromises);
+            $view->with('shopAnalytics', $shopAnalytics);
             $view->with('analyticsInitialEvents', $analyticsInitialEvents);
         });
     }

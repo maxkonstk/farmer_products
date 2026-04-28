@@ -42,6 +42,8 @@ class StorefrontAnalyticsTest extends TestCase
         $catalogResponse->assertSee('BreadcrumbList', false);
         $catalogResponse->assertSee('"event":"view_item_list"', false);
         $catalogResponse->assertSee('"item_list_id":"catalog"', false);
+        $catalogResponse->assertSee('data-analytics-catalog-form', false);
+        $catalogResponse->assertSee('type="search"', false);
 
         $productResponse = $this->get(route('products.show', $product));
 

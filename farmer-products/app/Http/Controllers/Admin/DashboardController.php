@@ -11,10 +11,19 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\PromoBlock;
 use App\Models\Testimonial;
+use App\Services\HealthCheckService;
+use App\Services\StorefrontSettingsService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly StorefrontSettingsService $storefrontSettings,
+        private readonly HealthCheckService $healthChecks,
+    )
+    {
+    }
+
     public function index(): View
     {
         $stats = [
@@ -39,11 +48,14 @@ class DashboardController extends Controller
 
         $lowStockProducts = Product::query()
             ->with('category')
-            ->where('stock', '<=', 5)
+            ->where('stock', '<=', Product::LOW_STOCK_THRESHOLD)
             ->orderBy('stock')
             ->take(6)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentOrders', 'lowStockProducts'));
+        $analytics = $this->storefrontSettings->analytics();
+        $readiness = $this->healthChecks->readinessReport();
+
+        return view('admin.dashboard', compact('stats', 'recentOrders', 'lowStockProducts', 'analytics', 'readiness'));
     }
 }

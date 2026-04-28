@@ -5,8 +5,24 @@
         $delivery = $shopDelivery ?? config('shop.delivery');
         $metaDescription = trim((string) $__env->yieldContent('meta_description', $brand['tagline']));
         $metaTitle = trim((string) $__env->yieldContent('title', config('app.name')));
-        $canonicalUrl = url()->current();
+        $defaultRobots = request()->routeIs('cart.*', 'checkout.*', 'dashboard', 'account.*', 'profile.*') ? 'noindex,nofollow' : 'index,follow';
+        $metaRobots = trim((string) $__env->yieldContent('meta_robots', $defaultRobots));
+        $canonicalUrl = trim((string) $__env->yieldContent('meta_canonical', url()->current()));
         $metaImage = trim((string) $__env->yieldContent('meta_image', asset('images/products/hero-farm.svg')));
+        $analytics = $shopAnalytics ?? config('shop.analytics', []);
+        $analyticsProvider = $analytics['provider'] ?? 'none';
+        $gaMeasurementId = trim((string) ($analytics['ga_measurement_id'] ?? ''));
+        $gtmContainerId = trim((string) ($analytics['gtm_container_id'] ?? ''));
+        $trackWebVitals = (bool) ($analytics['track_web_vitals'] ?? true);
+        $analyticsDebug = (bool) ($analytics['debug_mode'] ?? false);
+        $analyticsRequiresConsent = (bool) ($analytics['requires_consent'] ?? true) && in_array($analyticsProvider, ['ga4', 'gtm'], true);
+        $cookieConsentVersion = trim((string) ($analytics['consent_version'] ?? '2026-04'));
+        $cookieConsentRaw = trim((string) request()->cookie('shop_cookie_consent', ''));
+        [$cookieConsentValue, $cookieConsentCookieVersion] = array_pad(explode(':', $cookieConsentRaw, 2), 2, null);
+        $cookieConsentState = $cookieConsentCookieVersion === $cookieConsentVersion && in_array($cookieConsentValue, ['accepted', 'rejected'], true)
+            ? $cookieConsentValue
+            : 'unknown';
+        $analyticsEnabled = ! $analyticsRequiresConsent || $cookieConsentState === 'accepted';
     @endphp
     <head>
         <meta charset="utf-8">
@@ -15,6 +31,7 @@
 
         <title>{{ $metaTitle }}</title>
         <meta name="description" content="{{ $metaDescription }}">
+        <meta name="robots" content="{{ $metaRobots }}">
         <link rel="canonical" href="{{ $canonicalUrl }}">
         <meta property="og:title" content="{{ $metaTitle }}">
         <meta property="og:description" content="{{ $metaDescription }}">
@@ -27,6 +44,33 @@
         <meta name="twitter:description" content="{{ $metaDescription }}">
         <meta name="twitter:image" content="{{ $metaImage }}">
 
+        <script>
+            window.dataLayer = window.dataLayer || [];
+        </script>
+        @if ($analyticsEnabled && $analyticsProvider === 'ga4' && $gaMeasurementId !== '')
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaMeasurementId }}"></script>
+            <script>
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '{{ $gaMeasurementId }}', {
+                    page_title: @js($metaTitle),
+                    page_location: @js($canonicalUrl),
+                    page_path: @js('/'.ltrim(request()->path(), '/')),
+                    @if ($analyticsDebug)
+                        debug_mode: true,
+                    @endif
+                });
+            </script>
+        @elseif ($analyticsEnabled && $analyticsProvider === 'gtm' && $gtmContainerId !== '')
+            <script>
+                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','{{ $gtmContainerId }}');
+            </script>
+        @endif
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -35,7 +79,23 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('structured_data')
     </head>
-    <body class="site-body">
+    <body
+        class="site-body"
+        data-analytics-provider="{{ $analyticsProvider }}"
+        data-analytics-web-vitals="{{ $trackWebVitals ? 'true' : 'false' }}"
+        data-analytics-debug="{{ $analyticsDebug ? 'true' : 'false' }}"
+        data-analytics-ga-id="{{ $gaMeasurementId }}"
+        data-analytics-gtm-id="{{ $gtmContainerId }}"
+        data-analytics-loaded="{{ $analyticsEnabled ? 'true' : 'false' }}"
+        data-analytics-consent-required="{{ $analyticsRequiresConsent ? 'true' : 'false' }}"
+        data-cookie-consent-state="{{ $cookieConsentState }}"
+        data-cookie-consent-version="{{ $cookieConsentVersion }}"
+    >
+        @if ($analyticsEnabled && $analyticsProvider === 'gtm' && $gtmContainerId !== '')
+            <noscript>
+                <iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmContainerId }}" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+            </noscript>
+        @endif
         <a href="#main-content" class="skip-link">Перейти к содержимому</a>
         <div class="site-shell">
             <header class="site-header" x-data="{ mobileMenuOpen: false }">
@@ -147,6 +207,17 @@
                         </div>
                     </div>
                     <div>
+                        <p class="site-footer__title">Документы</p>
+                        <div class="site-footer__links">
+                            <a href="{{ route('pages.privacy') }}">Конфиденциальность</a>
+                            <a href="{{ route('pages.cookies') }}">Cookies</a>
+                            <a href="{{ route('pages.terms') }}">Условия заказа</a>
+                            @if ($analyticsRequiresConsent)
+                                <button type="button" class="footer-link-button" data-cookie-preferences-trigger>Настроить cookies</button>
+                            @endif
+                        </div>
+                    </div>
+                    <div>
                         <p class="site-footer__title">Контакты</p>
                         <div class="site-footer__links">
                             <span>{{ $brand['address'] }}</span>
@@ -157,6 +228,10 @@
                 </div>
             </footer>
         </div>
+
+        @if ($analyticsRequiresConsent)
+            @include('partials.cookie-consent', ['cookieConsentState' => $cookieConsentState])
+        @endif
 
         @foreach (($analyticsInitialEvents ?? []) as $analyticsEvent)
             @include('partials.analytics-event', ['event' => $analyticsEvent])

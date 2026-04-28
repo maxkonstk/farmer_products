@@ -14,12 +14,15 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OperationsController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/health', [OperationsController::class, 'health'])->name('ops.health');
+Route::get('/ready', [OperationsController::class, 'ready'])->name('ops.ready');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/categories/{category:slug}', [CatalogController::class, 'category'])->name('categories.show');
 Route::get('/collections/{collection:slug}', [CatalogController::class, 'collection'])->name('collections.show');
@@ -29,7 +32,11 @@ Route::get('/contacts', [PageController::class, 'contacts'])->name('pages.contac
 Route::get('/delivery', [PageController::class, 'delivery'])->name('pages.delivery');
 Route::get('/payment', [PageController::class, 'payment'])->name('pages.payment');
 Route::get('/faq', [PageController::class, 'faq'])->name('pages.faq');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('pages.privacy');
+Route::get('/cookies', [PageController::class, 'cookies'])->name('pages.cookies');
+Route::get('/terms', [PageController::class, 'terms'])->name('pages.terms');
 Route::get('/sitemap.xml', [PageController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [PageController::class, 'robots'])->name('robots');
 
 Route::prefix('cart')->name('cart.')->controller(CartController::class)->group(function (): void {
     Route::get('/', 'index')->name('index');

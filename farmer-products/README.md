@@ -173,7 +173,9 @@
 - очередь уведомлений при оформлении заказа;
 - шаблон production `.env`;
 - команды деплоя через Composer scripts;
-- кэширование навигационных категорий.
+- кэширование навигационных категорий;
+- consent-управление аналитикой и legal pages;
+- readiness endpoints и post-deploy smoke-check.
 
 ## Тестовые данные
 
@@ -310,12 +312,16 @@ php artisan queue:work --tries=3 --sleep=1 --timeout=90
 - очередь `queue:work`
 - резервное копирование базы
 - ротация логов
+- post-deploy smoke-check
 
 ## Основные маршруты
 
 ### Публичные
 
 - `/`
+- `/health`
+- `/ready`
+- `/up`
 - `/catalog`
 - `/categories/{category}`
 - `/products/{product}`
@@ -323,6 +329,9 @@ php artisan queue:work --tries=3 --sleep=1 --timeout=90
 - `/checkout`
 - `/about`
 - `/contacts`
+- `/privacy`
+- `/cookies`
+- `/terms`
 
 ### Пользовательские
 
@@ -346,4 +355,19 @@ php artisan migrate:fresh --seed
 php artisan test
 php artisan route:list --except-vendor
 npm run build
+```
+
+## Operations
+
+Для прод-эксплуатации смотри:
+
+- [docs/operations.md](docs/operations.md)
+- [docs/railway.md](docs/railway.md)
+
+Коротко:
+
+```bash
+composer run smoke-check
+curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/ready
 ```

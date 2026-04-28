@@ -24,6 +24,9 @@ class StorefrontPagesTest extends TestCase
         $this->get(route('pages.delivery'))->assertOk();
         $this->get(route('pages.payment'))->assertOk();
         $this->get(route('pages.faq'))->assertOk();
+        $this->get(route('pages.privacy'))->assertOk();
+        $this->get(route('pages.cookies'))->assertOk();
+        $this->get(route('pages.terms'))->assertOk();
         $this->get(route('products.show', $product))->assertOk();
     }
 }

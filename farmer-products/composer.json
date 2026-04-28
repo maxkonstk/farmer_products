@@ -59,6 +59,9 @@
         "worker": [
             "@php artisan queue:work --tries=3 --sleep=1 --timeout=90"
         ],
+        "smoke-check": [
+            "@php artisan app:smoke-check --ansi"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

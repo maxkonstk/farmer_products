@@ -31,7 +31,14 @@
         $availability !== '',
         $sort !== 'latest',
     ])->filter()->count();
+    $isIndexableCatalogPage = $activeFilterCount === 0;
+    $catalogCanonicalUrl = $currentCollection
+        ? route('collections.show', $currentCollection)
+        : ($currentCategory ? route('categories.show', $currentCategory) : route('catalog.index'));
 @endphp
+
+@section('meta_robots', $isIndexableCatalogPage ? 'index,follow' : 'noindex,follow')
+@section('meta_canonical', $catalogCanonicalUrl)
 
 @push('structured_data')
     <script type="application/ld+json">
@@ -140,7 +147,7 @@
                 <span class="filter-toggle__hint">Поиск, сезонность, наличие</span>
             </button>
 
-            <form method="GET" id="catalog-filters" class="filter-panel" :class="{ 'is-open': filtersOpen }">
+            <form method="GET" id="catalog-filters" class="filter-panel" :class="{ 'is-open': filtersOpen }" data-analytics-catalog-form>
                 @if (! $currentCategory)
                     <div class="form-group">
                         <label for="category" class="form-label">Категория</label>

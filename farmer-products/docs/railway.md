@@ -4,7 +4,7 @@
 
 ## Что уже настроено в коде
 
-- `Dockerfile` собирает production image с PHP 8.3, Apache и фронтенд-сборкой;
+- `Dockerfile` собирает production image с PHP 8.4, Apache и фронтенд-сборкой;
 - `railway.json` задает app deploy: Dockerfile builder, миграции перед деплоем и healthcheck `/up`;
 - `railway.worker.json` задает worker deploy с `queue:work`;
 - `railway/pre-deploy.sh` выполняет миграции с ретраями;
@@ -158,9 +158,17 @@ Config as Code Path = /farmer-products/railway.worker.json
 Проверь по порядку:
 
 1. `https://<your-domain>/up` отдает `200`.
-2. Открывается главная страница.
-3. В каталоге есть товары.
-4. Админ может войти под:
+2. `https://<your-domain>/health` отдает JSON liveness.
+3. `https://<your-domain>/ready` отдает readiness JSON.
+4. В shell app service проходит:
+
+```bash
+composer run smoke-check
+```
+
+5. Открывается главная страница.
+6. В каталоге есть товары.
+7. Админ может войти под:
 
 ```text
 admin@farmer-shop.test / password
@@ -168,8 +176,8 @@ admin@farmer-shop.test / password
 
 Тестовые пользователи в сидере уже помечаются как `verified`, поэтому доступ в защищенные разделы будет работать.
 
-5. Загрузка изображения из админки сохраняется после redeploy.
-6. После тестового заказа таблица `jobs` очищается worker-ом, если он поднят.
+8. Загрузка изображения из админки сохраняется после redeploy.
+9. После тестового заказа таблица `jobs` очищается worker-ом, если он поднят.
 
 ## Минимальный набор переменных
 
@@ -220,4 +228,5 @@ QUEUE_WORKER_TIMEOUT=90
 php artisan about
 php artisan migrate:status
 php artisan queue:monitor default --max=100
+composer run smoke-check
 ```

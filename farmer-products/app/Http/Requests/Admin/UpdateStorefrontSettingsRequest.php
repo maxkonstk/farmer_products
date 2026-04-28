@@ -31,6 +31,19 @@ class UpdateStorefrontSettingsRequest extends FormRequest
             'delivery_zones' => ['required', 'string', 'max:4000'],
             'delivery_promises' => ['required', 'string', 'max:4000'],
             'storefront_promises' => ['required', 'string', 'max:4000'],
+            'analytics_provider' => ['required', 'in:none,ga4,gtm'],
+            'ga_measurement_id' => ['nullable', 'required_if:analytics_provider,ga4', 'string', 'max:40'],
+            'gtm_container_id' => ['nullable', 'required_if:analytics_provider,gtm', 'string', 'max:40'],
+            'track_web_vitals' => ['nullable', 'boolean'],
+            'analytics_debug' => ['nullable', 'boolean'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'track_web_vitals' => $this->boolean('track_web_vitals'),
+            'analytics_debug' => $this->boolean('analytics_debug'),
+        ]);
     }
 }

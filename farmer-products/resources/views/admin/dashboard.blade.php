@@ -109,5 +109,95 @@
                 @endforelse
             </div>
         </section>
+
+        <section class="content-card">
+            <div class="section-heading section-heading--compact">
+                <div>
+                    <p class="eyebrow">Launch readiness</p>
+                    <h2 class="section-title">Analytics sink</h2>
+                </div>
+            </div>
+
+            <div class="stack-list">
+                <div class="stack-list__item">
+                    <div>
+                        <strong>Provider</strong>
+                        <p>{{ match($analytics['provider'] ?? 'none') {
+                            'ga4' => 'Google Analytics 4',
+                            'gtm' => 'Google Tag Manager',
+                            default => 'Не подключен',
+                        } }}</p>
+                    </div>
+                    <span class="status-badge {{ ($analytics['provider'] ?? 'none') === 'none' ? 'status-badge--cancelled' : 'status-badge--completed' }}">
+                        {{ strtoupper((string) ($analytics['provider'] ?? 'none')) }}
+                    </span>
+                </div>
+                <div class="stack-list__item">
+                    <div>
+                        <strong>Идентификатор</strong>
+                        <p>{{ $analytics['gtm_container_id'] ?? $analytics['ga_measurement_id'] ?? 'Не задан' }}</p>
+                    </div>
+                </div>
+                <div class="stack-list__item">
+                    <div>
+                        <strong>Web vitals</strong>
+                        <p>{{ ($analytics['track_web_vitals'] ?? false) ? 'LCP, CLS, FCP и TTFB отправляются в dataLayer.' : 'Сбор выключен.' }}</p>
+                    </div>
+                </div>
+                <div class="stack-list__item">
+                    <div>
+                        <strong>Debug mode</strong>
+                        <p>{{ ($analytics['debug_mode'] ?? false) ? 'Включен для проверки событиями.' : 'Выключен для production-трафика.' }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-card">
+            <div class="section-heading section-heading--compact">
+                <div>
+                    <p class="eyebrow">Operations</p>
+                    <h2 class="section-title">Health и readiness</h2>
+                </div>
+            </div>
+
+            <div class="stack-list">
+                <div class="stack-list__item">
+                    <div>
+                        <strong>Общий статус</strong>
+                        <p>{{ $readiness['checked_at'] }}</p>
+                    </div>
+                    <span class="status-badge {{
+                        match($readiness['status']) {
+                            'ok' => 'status-badge--completed',
+                            'warning' => 'status-badge--new',
+                            default => 'status-badge--cancelled',
+                        }
+                    }}">
+                        {{ strtoupper($readiness['status']) }}
+                    </span>
+                </div>
+                @foreach ($readiness['checks'] as $checkName => $check)
+                    <div class="stack-list__item">
+                        <div>
+                            <strong>{{ str($checkName)->replace('_', ' ')->title() }}</strong>
+                            <p>{{ $check['message'] }}</p>
+                            @if (! empty($check['meta']))
+                                <p class="stack-list__meta">{{ json_encode($check['meta'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}</p>
+                            @endif
+                        </div>
+                        <span class="status-badge {{
+                            match($check['status']) {
+                                'ok' => 'status-badge--completed',
+                                'warning' => 'status-badge--new',
+                                default => 'status-badge--cancelled',
+                            }
+                        }}">
+                            {{ strtoupper($check['status']) }}
+                        </span>
+                    </div>
+                @endforeach
+            </div>
+        </section>
     </div>
 @endsection

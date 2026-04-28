@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -18,15 +19,59 @@ class ProductController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('q'));
+        $categoryId = $request->filled('category_id') ? (int) $request->input('category_id') : null;
+        $visibility = (string) $request->string('visibility');
+        $featured = (string) $request->string('featured');
+        $stockState = (string) $request->string('stock_state');
 
         $products = Product::query()
             ->with('category')
-            ->when($search !== '', fn ($query) => $query->where('name', 'like', "%{$search}%"))
+            ->withCount(['collections', 'favoritedByUsers'])
+            ->when($search !== '', function (Builder $query) use ($search): void {
+                $query->where(function (Builder $nestedQuery) use ($search): void {
+                    $nestedQuery
+                        ->where('name', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%")
+                        ->orWhere('producer_name', 'like', "%{$search}%")
+                        ->orWhere('origin_location', 'like', "%{$search}%");
+                });
+            })
+            ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))
+            ->when($visibility === 'active', fn ($query) => $query->where('is_active', true))
+            ->when($visibility === 'hidden', fn ($query) => $query->where('is_active', false))
+            ->when($featured === 'featured', fn ($query) => $query->where('is_featured', true))
+            ->when($featured === 'standard', fn ($query) => $query->where('is_featured', false))
+            ->when($stockState !== '', function (Builder $query) use ($stockState): void {
+                if ($stockState === 'out') {
+                    $query->where('stock', '<=', 0);
+
+                    return;
+                }
+
+                if ($stockState === 'low') {
+                    $query->whereBetween('stock', [1, Product::LOW_STOCK_THRESHOLD]);
+
+                    return;
+                }
+
+                if ($stockState === 'in') {
+                    $query->where('stock', '>', Product::LOW_STOCK_THRESHOLD);
+                }
+            })
             ->latest()
             ->paginate(12)
             ->withQueryString();
 
-        return view('admin.products.index', compact('products', 'search'));
+        return view('admin.products.index', [
+            'products' => $products,
+            'search' => $search,
+            'categoryId' => $categoryId,
+            'visibility' => $visibility,
+            'featured' => $featured,
+            'stockState' => $stockState,
+            'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
+            'stockThreshold' => Product::LOW_STOCK_THRESHOLD,
+        ]);
     }
 
     public function create(): View

@@ -62,6 +62,23 @@ class PageController extends Controller
         ]);
     }
 
+    public function privacy(): View
+    {
+        return view('pages.privacy');
+    }
+
+    public function cookies(): View
+    {
+        return view('pages.cookies', [
+            'analytics' => $this->storefrontSettings->analytics(),
+        ]);
+    }
+
+    public function terms(): View
+    {
+        return view('pages.terms');
+    }
+
     public function sitemap(): Response
     {
         $urls = [
@@ -72,6 +89,9 @@ class PageController extends Controller
             ['loc' => route('pages.delivery'), 'lastmod' => now()],
             ['loc' => route('pages.payment'), 'lastmod' => now()],
             ['loc' => route('pages.faq'), 'lastmod' => now()],
+            ['loc' => route('pages.privacy'), 'lastmod' => now()],
+            ['loc' => route('pages.cookies'), 'lastmod' => now()],
+            ['loc' => route('pages.terms'), 'lastmod' => now()],
         ];
 
         $categories = Category::query()->orderBy('updated_at', 'desc')->get()
@@ -101,5 +121,29 @@ class PageController extends Controller
                 'urls' => collect($urls)->concat($categories)->concat($collections)->concat($products),
             ])
             ->header('Content-Type', 'application/xml');
+    }
+
+    public function robots(): Response
+    {
+        $lines = [
+            'User-agent: *',
+            'Allow: /',
+            'Disallow: /admin',
+            'Disallow: /cart',
+            'Disallow: /checkout',
+            'Disallow: /dashboard',
+            'Disallow: /account',
+            'Disallow: /profile',
+            'Disallow: /login',
+            'Disallow: /register',
+            'Disallow: /forgot-password',
+            'Disallow: /reset-password',
+            'Disallow: /confirm-password',
+            'Disallow: /verify-email',
+            'Sitemap: '.route('sitemap'),
+        ];
+
+        return response(implode("\n", $lines)."\n")
+            ->header('Content-Type', 'text/plain; charset=UTF-8');
     }
 }

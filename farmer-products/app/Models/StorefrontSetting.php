@@ -25,6 +25,11 @@ class StorefrontSetting extends Model
         'delivery_zones',
         'delivery_promises',
         'storefront_promises',
+        'analytics_provider',
+        'ga_measurement_id',
+        'gtm_container_id',
+        'track_web_vitals',
+        'analytics_debug',
     ];
 
     /**
@@ -38,6 +43,8 @@ class StorefrontSetting extends Model
             'delivery_zones' => 'array',
             'delivery_promises' => 'array',
             'storefront_promises' => 'array',
+            'track_web_vitals' => 'boolean',
+            'analytics_debug' => 'boolean',
         ];
     }
 

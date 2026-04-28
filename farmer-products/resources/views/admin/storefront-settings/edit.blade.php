@@ -69,6 +69,36 @@
                 <label for="storefront_promises" class="form-label">Trust-блок на витрине</label>
                 <textarea id="storefront_promises" name="storefront_promises" rows="5" class="form-control" required>{{ old('storefront_promises', $storefrontPromisesText) }}</textarea>
             </div>
+
+            <div class="form-group">
+                <label for="analytics_provider" class="form-label">Analytics provider</label>
+                <select id="analytics_provider" name="analytics_provider" class="form-control" required>
+                    @foreach ($analyticsProviders as $provider => $label)
+                        <option value="{{ $provider }}" @selected(old('analytics_provider', $settings['analytics']['provider'] ?? 'none') === $provider)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ga_measurement_id" class="form-label">GA4 measurement ID</label>
+                <input id="ga_measurement_id" type="text" name="ga_measurement_id" value="{{ old('ga_measurement_id', $settings['analytics']['ga_measurement_id'] ?? '') }}" class="form-control" placeholder="G-XXXXXXXXXX">
+            </div>
+            <div class="form-group">
+                <label for="gtm_container_id" class="form-label">GTM container ID</label>
+                <input id="gtm_container_id" type="text" name="gtm_container_id" value="{{ old('gtm_container_id', $settings['analytics']['gtm_container_id'] ?? '') }}" class="form-control" placeholder="GTM-XXXXXXX">
+            </div>
+            <div class="form-group form-group--full">
+                <label class="checkbox-row">
+                    <input type="checkbox" name="track_web_vitals" value="1" @checked(old('track_web_vitals', $settings['analytics']['track_web_vitals'] ?? true))>
+                    <span>Собирать web vitals в `dataLayer`</span>
+                </label>
+            </div>
+            <div class="form-group form-group--full">
+                <label class="checkbox-row">
+                    <input type="checkbox" name="analytics_debug" value="1" @checked(old('analytics_debug', $settings['analytics']['debug_mode'] ?? false))>
+                    <span>Включить debug mode для аналитики</span>
+                </label>
+                <p class="form-hint">Если подключен GTM, storefront продолжит пушить ecommerce- и search-события в `dataLayer`. Для GA4 напрямую используется `gtag`.</p>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Сохранить настройки</button>
