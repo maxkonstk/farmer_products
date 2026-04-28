@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\SecurityHeadersMiddleware;
 use Illuminate\Foundation\Application;
@@ -14,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            TrustProxies::class,
             SecurityHeadersMiddleware::class,
         ]);
 
