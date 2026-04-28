@@ -3,14 +3,110 @@
 @section('title', $currentCollection?->name ?? ($currentCategory ? $currentCategory->name : 'Каталог товаров'))
 @section('meta_description', $currentCollection?->description ?? ($currentCategory?->description ?? 'Каталог локальных фермерских продуктов: овощи, молочка, сыры, мясо, мед, выпечка и сезонные заготовки с доставкой по Самаре.'))
 
+@php
+    $analytics = app(\App\Services\AnalyticsService::class);
+    $pageTitle = $currentCollection?->name ?? ($currentCategory?->name ?? 'Фермерские продукты');
+    $pageDescription = $currentCollection?->description ?? ($currentCategory?->description ?? 'Ищите продукты по категории, сезонности, цене и наличию. Для каждой карточки показываем происхождение, базовые характеристики и понятный путь к покупке.');
+    $listId = $currentCollection?->slug ?? ($currentCategory?->slug ?? 'catalog');
+    $listName = $currentCollection?->name ?? ($currentCategory?->name ?? 'Весь каталог');
+    $analyticsItems = $analytics->itemsFromProducts($products->getCollection(), $listId, $listName);
+    $breadcrumbItems = [
+        ['name' => 'Главная', 'url' => route('home')],
+        ['name' => 'Каталог', 'url' => route('catalog.index')],
+    ];
+
+    if ($currentCategory) {
+        $breadcrumbItems[] = ['name' => $currentCategory->name, 'url' => route('categories.show', $currentCategory)];
+    }
+
+    if ($currentCollection) {
+        $breadcrumbItems[] = ['name' => $currentCollection->name, 'url' => route('collections.show', $currentCollection)];
+    }
+@endphp
+
+@push('structured_data')
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => collect($breadcrumbItems)
+                        ->values()
+                        ->map(fn (array $item, int $index) => [
+                            '@type' => 'ListItem',
+                            'position' => $index + 1,
+                            'name' => $item['name'],
+                            'item' => $item['url'],
+                        ])
+                        ->all(),
+                ],
+                [
+                    '@type' => 'CollectionPage',
+                    'name' => $pageTitle,
+                    'description' => $pageDescription,
+                    'url' => url()->full(),
+                    'mainEntity' => [
+                        '@type' => 'ItemList',
+                        'numberOfItems' => $products->count(),
+                        'itemListElement' => $products->getCollection()
+                            ->values()
+                            ->map(fn ($product, int $index) => [
+                                '@type' => 'ListItem',
+                                'position' => $index + 1,
+                                'url' => route('products.show', $product),
+                                'item' => [
+                                    '@type' => 'Product',
+                                    'name' => $product->name,
+                                    'image' => $product->image_url,
+                                    'category' => $product->category->name,
+                                    'offers' => [
+                                        '@type' => 'Offer',
+                                        'priceCurrency' => 'RUB',
+                                        'price' => (float) $product->price,
+                                        'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                                        'url' => route('products.show', $product),
+                                    ],
+                                ],
+                            ])
+                            ->all(),
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+@endpush
+
+@push('analytics_events')
+    @include('partials.analytics-event', [
+        'event' => [
+            'event' => 'view_item_list',
+            'ecommerce' => [
+                'item_list_id' => $listId,
+                'item_list_name' => $listName,
+                'items' => $analyticsItems,
+            ],
+        ],
+    ])
+    @if ($search !== '')
+        @include('partials.analytics-event', [
+            'event' => [
+                'event' => 'view_search_results',
+                'search_term' => $search,
+                'results_count' => $products->total(),
+            ],
+        ])
+    @endif
+@endpush
+
 @section('content')
     <section class="page-section">
         <div class="site-container">
             <div class="page-intro">
                 <div>
                     <p class="eyebrow">{{ $currentCollection ? 'Коллекция' : ($currentCategory ? 'Категория каталога' : 'Весь ассортимент') }}</p>
-                    <h1 class="page-title">{{ $currentCollection?->name ?? ($currentCategory?->name ?? 'Фермерские продукты') }}</h1>
-                    <p class="page-subtitle">{{ $currentCollection?->description ?? ($currentCategory?->description ?? 'Ищите продукты по категории, сезонности, цене и наличию. Для каждой карточки показываем происхождение, базовые характеристики и понятный путь к покупке.') }}</p>
+                    <h1 class="page-title">{{ $pageTitle }}</h1>
+                    <p class="page-subtitle">{{ $pageDescription }}</p>
                 </div>
                 <div class="intro-note">
                     <span>В наличии на витрине</span>

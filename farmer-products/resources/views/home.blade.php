@@ -3,19 +3,57 @@
 @section('title', 'Локальные фермерские продукты с доставкой по Самаре')
 @section('meta_description', 'Локальные овощи, молочка, сыры, мясо, мед и домашняя выпечка с понятным происхождением, ручным подтверждением заказа и доставкой по Самаре.')
 
+@push('head')
+    <link rel="preload" as="image" href="{{ asset('images/products/hero-farm.svg') }}" fetchpriority="high">
+@endpush
+
 @push('structured_data')
+    @php
+        $searchUrl = route('catalog.index').'?q={search_term_string}';
+    @endphp
     <script type="application/ld+json">
         {!! json_encode([
             '@context' => 'https://schema.org',
-            '@type' => 'Organization',
-            'name' => $shopBrand['name'],
-            'url' => route('home'),
-            'telephone' => $shopBrand['phone'],
-            'email' => $shopBrand['email'],
-            'address' => [
-                '@type' => 'PostalAddress',
-                'addressLocality' => $shopBrand['city'],
-                'streetAddress' => $shopBrand['address'],
+            '@graph' => [
+                [
+                    '@type' => 'Organization',
+                    '@id' => route('home').'#organization',
+                    'name' => $shopBrand['name'],
+                    'url' => route('home'),
+                    'telephone' => $shopBrand['phone'],
+                    'email' => $shopBrand['email'],
+                    'address' => [
+                        '@type' => 'PostalAddress',
+                        'addressLocality' => $shopBrand['city'],
+                        'streetAddress' => $shopBrand['address'],
+                    ],
+                ],
+                [
+                    '@type' => 'Store',
+                    '@id' => route('home').'#store',
+                    'name' => $shopBrand['name'],
+                    'image' => asset('images/products/hero-farm.svg'),
+                    'url' => route('home'),
+                    'address' => [
+                        '@type' => 'PostalAddress',
+                        'addressLocality' => $shopBrand['city'],
+                        'streetAddress' => $shopBrand['address'],
+                    ],
+                    'parentOrganization' => [
+                        '@id' => route('home').'#organization',
+                    ],
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => route('home').'#website',
+                    'name' => $shopBrand['name'],
+                    'url' => route('home'),
+                    'potentialAction' => [
+                        '@type' => 'SearchAction',
+                        'target' => $searchUrl,
+                        'query-input' => 'required name=search_term_string',
+                    ],
+                ],
             ],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
     </script>
@@ -55,7 +93,7 @@
             </div>
 
             <div class="hero-card hero-card--issue">
-                <img src="/images/products/hero-farm.svg" alt="Сезонные поставки фермерских продуктов" class="hero-card__image">
+                <img src="/images/products/hero-farm.svg" alt="Сезонные поставки фермерских продуктов" class="hero-card__image" fetchpriority="high">
                 <div class="hero-card__content">
                     <p class="hero-card__label">Почему это работает</p>
                     <h2 class="hero-card__headline">Не маркетплейс, а короткая цепочка от хозяйства до вашей кухни</h2>
@@ -119,7 +157,7 @@
                     @foreach ($featuredCollections as $collection)
                         <a href="{{ route('collections.show', $collection) }}" class="collection-card">
                             <div class="collection-card__media">
-                                <img src="{{ $collection->image_url }}" alt="{{ $collection->name }}">
+                                <img src="{{ $collection->image_url }}" alt="{{ $collection->name }}" loading="lazy" decoding="async">
                                 @if ($collection->badge)
                                     <span class="product-badge">{{ $collection->badge }}</span>
                                 @endif
@@ -150,7 +188,7 @@
             <div class="category-grid">
                 @foreach ($categories as $category)
                     <a href="{{ route('categories.show', $category) }}" class="category-card">
-                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="category-card__image">
+                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="category-card__image" loading="lazy" decoding="async">
                         <div class="category-card__content">
                             <span class="category-card__kicker">Категория</span>
                             <h3>{{ $category->name }}</h3>
@@ -193,7 +231,7 @@
             <div class="farm-grid">
                 @foreach ($farmers as $farmer)
                     <article class="farm-card">
-                        <img src="{{ $farmer['image_url'] ?? $farmer['image'] }}" alt="{{ $farmer['name'] }}" class="farm-card__image">
+                        <img src="{{ $farmer['image_url'] ?? $farmer['image'] }}" alt="{{ $farmer['name'] }}" class="farm-card__image" loading="lazy" decoding="async">
                         <div>
                             <p class="farm-card__eyebrow">{{ $farmer['location'] }}</p>
                             <h3>{{ $farmer['name'] }}</h3>

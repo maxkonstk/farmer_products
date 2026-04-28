@@ -2,7 +2,7 @@
 
 <article class="product-card">
     <a href="{{ route('products.show', $product) }}" class="product-card__image-wrap">
-        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="product-card__image">
+        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="product-card__image" loading="lazy" decoding="async">
         @if ($product->badge)
             <span class="product-badge">{{ $product->badge }}</span>
         @endif

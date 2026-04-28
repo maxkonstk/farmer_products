@@ -2,6 +2,23 @@
 
 @section('title', 'Заказ оформлен')
 
+@php($analytics = app(\App\Services\AnalyticsService::class))
+
+@push('analytics_events')
+    @include('partials.analytics-event', [
+        'event' => [
+            'event' => 'purchase',
+            'ecommerce' => [
+                'currency' => 'RUB',
+                'transaction_id' => $order->order_number,
+                'value' => round((float) $order->total_price, 2),
+                'shipping_tier' => $order->fulfillment_method,
+                'items' => $analytics->itemsFromOrder($order),
+            ],
+        ],
+    ])
+@endpush
+
 @section('content')
     <section class="page-section">
         <div class="site-container">

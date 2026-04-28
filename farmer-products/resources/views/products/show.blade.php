@@ -5,30 +5,89 @@
 @section('meta_description', $product->description)
 @section('meta_image', $product->gallery_urls[0])
 
-@php($isFavorited = in_array($product->id, $favoriteProductIds ?? [], true))
+@php
+    $isFavorited = in_array($product->id, $favoriteProductIds ?? [], true);
+    $analytics = app(\App\Services\AnalyticsService::class);
+    $breadcrumbItems = [
+        ['name' => 'Главная', 'url' => route('home')],
+        ['name' => 'Каталог', 'url' => route('catalog.index')],
+        ['name' => $product->category->name, 'url' => route('categories.show', $product->category)],
+        ['name' => $product->name, 'url' => route('products.show', $product)],
+    ];
+@endphp
 
 @push('structured_data')
     <script type="application/ld+json">
         {!! json_encode([
             '@context' => 'https://schema.org',
-            '@type' => 'Product',
-            'name' => $product->name,
-            'description' => $product->description,
-            'image' => $product->gallery_urls,
-            'category' => $product->category->name,
-            'brand' => [
-                '@type' => 'Brand',
-                'name' => $shopBrand['name'],
-            ],
-            'offers' => [
-                '@type' => 'Offer',
-                'priceCurrency' => 'RUB',
-                'price' => (float) $product->price,
-                'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-                'url' => route('products.show', $product),
+            '@graph' => [
+                [
+                    '@type' => 'BreadcrumbList',
+                    'itemListElement' => collect($breadcrumbItems)
+                        ->values()
+                        ->map(fn (array $item, int $index) => [
+                            '@type' => 'ListItem',
+                            'position' => $index + 1,
+                            'name' => $item['name'],
+                            'item' => $item['url'],
+                        ])
+                        ->all(),
+                ],
+                [
+                    '@type' => 'Product',
+                    'name' => $product->name,
+                    'description' => $product->description,
+                    'sku' => $product->slug,
+                    'image' => $product->gallery_urls,
+                    'category' => $product->category->name,
+                    'url' => route('products.show', $product),
+                    'brand' => [
+                        '@type' => 'Brand',
+                        'name' => $shopBrand['name'],
+                    ],
+                    'additionalProperty' => array_values(array_filter([
+                        $product->weight ? [
+                            '@type' => 'PropertyValue',
+                            'name' => 'Вес / объем',
+                            'value' => $product->weight,
+                        ] : null,
+                        $product->origin_location ? [
+                            '@type' => 'PropertyValue',
+                            'name' => 'Регион',
+                            'value' => $product->origin_location,
+                        ] : null,
+                        $product->seasonality ? [
+                            '@type' => 'PropertyValue',
+                            'name' => 'Сезонность',
+                            'value' => $product->seasonality,
+                        ] : null,
+                    ])),
+                    'offers' => [
+                        '@type' => 'Offer',
+                        'priceCurrency' => 'RUB',
+                        'price' => (float) $product->price,
+                        'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                        'url' => route('products.show', $product),
+                    ],
+                ],
             ],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
     </script>
+@endpush
+
+@push('analytics_events')
+    @include('partials.analytics-event', [
+        'event' => [
+            'event' => 'view_item',
+            'ecommerce' => [
+                'currency' => 'RUB',
+                'value' => round((float) $product->price, 2),
+                'items' => [
+                    $analytics->productItem($product, 1, $product->category->slug, $product->category->name),
+                ],
+            ],
+        ],
+    ])
 @endpush
 
 @section('content')
@@ -36,12 +95,12 @@
         <div class="site-container product-detail product-detail--commerce">
             <div class="product-gallery">
                 <div class="product-gallery__main">
-                    <img src="{{ $product->gallery_urls[0] }}" alt="{{ $product->name }}" class="product-detail__image">
+                    <img src="{{ $product->gallery_urls[0] }}" alt="{{ $product->name }}" class="product-detail__image" fetchpriority="high">
                 </div>
                 <div class="product-gallery__thumbs">
                     @foreach ($product->gallery_urls as $galleryImage)
                         <div class="product-gallery__thumb">
-                            <img src="{{ $galleryImage }}" alt="{{ $product->name }}">
+                            <img src="{{ $galleryImage }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                         </div>
                     @endforeach
                 </div>

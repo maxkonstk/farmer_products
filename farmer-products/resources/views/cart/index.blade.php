@@ -2,6 +2,23 @@
 
 @section('title', 'Корзина')
 
+@php($analytics = app(\App\Services\AnalyticsService::class))
+
+@push('analytics_events')
+    @if (! $is_empty)
+        @include('partials.analytics-event', [
+            'event' => [
+                'event' => 'view_cart',
+                'ecommerce' => [
+                    'currency' => 'RUB',
+                    'value' => round((float) $total_price, 2),
+                    'items' => $analytics->itemsFromCart($items),
+                ],
+            ],
+        ])
+    @endif
+@endpush
+
 @section('content')
     <section class="page-section">
         <div class="site-container">
@@ -24,7 +41,7 @@
                     <div class="cart-items">
                         @foreach ($items as $item)
                             <article class="cart-item">
-                                <img src="{{ $item['product']->image_url }}" alt="{{ $item['product']->name }}" class="cart-item__image">
+                                <img src="{{ $item['product']->image_url }}" alt="{{ $item['product']->name }}" class="cart-item__image" loading="lazy" decoding="async">
                                 <div class="cart-item__content">
                                     <div>
                                         <h2 class="cart-item__title">{{ $item['product']->name }}</h2>

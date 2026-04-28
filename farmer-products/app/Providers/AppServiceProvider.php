@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Services\AnalyticsService;
 use App\Services\CartService;
 use App\Services\StorefrontSettingsService;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -46,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
             $shopBrand = config('shop.brand', []);
             $shopDelivery = config('shop.delivery', []);
             $shopPromises = config('shop.promises', []);
+            $analyticsInitialEvents = [];
 
             try {
                 if (Schema::hasTable('categories')) {
@@ -79,6 +81,7 @@ class AppServiceProvider extends ServiceProvider
                 $shopBrand = $storefrontSettings->brand();
                 $shopDelivery = $storefrontSettings->delivery();
                 $shopPromises = $storefrontSettings->promises();
+                $analyticsInitialEvents = app(AnalyticsService::class)->initialEvents();
             } catch (Throwable) {
                 $navigationCategories = collect();
                 $cartItemsCount = 0;
@@ -86,6 +89,7 @@ class AppServiceProvider extends ServiceProvider
                 $shopBrand = config('shop.brand', []);
                 $shopDelivery = config('shop.delivery', []);
                 $shopPromises = config('shop.promises', []);
+                $analyticsInitialEvents = [];
             }
 
             $view->with('navigationCategories', $navigationCategories);
@@ -94,6 +98,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('shopBrand', $shopBrand);
             $view->with('shopDelivery', $shopDelivery);
             $view->with('shopPromises', $shopPromises);
+            $view->with('analyticsInitialEvents', $analyticsInitialEvents);
         });
     }
 }

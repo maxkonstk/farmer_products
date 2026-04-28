@@ -2,6 +2,21 @@
 
 @section('title', 'Оформление заказа')
 
+@php($analytics = app(\App\Services\AnalyticsService::class))
+
+@push('analytics_events')
+    @include('partials.analytics-event', [
+        'event' => [
+            'event' => 'begin_checkout',
+            'ecommerce' => [
+                'currency' => 'RUB',
+                'value' => round((float) $total_price, 2),
+                'items' => $analytics->itemsFromCart($items, 'checkout', 'Оформление заказа'),
+            ],
+        ],
+    ])
+@endpush
+
 @section('content')
     <section class="page-section">
         <div
