@@ -90,7 +90,7 @@ class ProductSeeder extends Seeder
             $resolvedImage = $product['image'];
 
             if (str_starts_with($resolvedImage, '/') && ! file_exists(public_path(ltrim($resolvedImage, '/')))) {
-                $resolvedImage = $category->image ?: '/images/products/fallback.svg';
+                $resolvedImage = $category->image ?: '/images/categories/vegetables.jpg';
             }
 
             $profile = $categoryProfiles[$product['category']] ?? [];
@@ -98,7 +98,7 @@ class ProductSeeder extends Seeder
             $gallery = collect([
                 $resolvedImage,
                 $category->image,
-                '/images/products/hero-farm.svg',
+                '/images/hero/farm-market.jpg',
             ])->filter()->unique()->values()->all();
 
             Product::query()->updateOrCreate(

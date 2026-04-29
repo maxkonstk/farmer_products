@@ -78,7 +78,7 @@ class Collection extends Model
     public function getImageUrlAttribute(): string
     {
         if (blank($this->image)) {
-            return '/images/products/hero-farm.svg';
+            return '/images/hero/farm-market.jpg';
         }
 
         if (Str::startsWith($this->image, ['http://', 'https://'])) {
@@ -88,7 +88,7 @@ class Collection extends Model
         if (Str::startsWith($this->image, '/')) {
             return file_exists(public_path(ltrim($this->image, '/')))
                 ? $this->image
-                : '/images/products/hero-farm.svg';
+                : '/images/hero/farm-market.jpg';
         }
 
         return Storage::disk('public')->url($this->image);

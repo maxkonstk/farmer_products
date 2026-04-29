@@ -35,7 +35,7 @@ class Category extends Model
     public function getImageUrlAttribute(): string
     {
         if (blank($this->image)) {
-            return '/images/products/fallback.svg';
+            return '/images/categories/vegetables.jpg';
         }
 
         if (Str::startsWith($this->image, ['http://', 'https://'])) {
@@ -45,7 +45,7 @@ class Category extends Model
         if (Str::startsWith($this->image, '/')) {
             return file_exists(public_path(ltrim($this->image, '/')))
                 ? $this->image
-                : '/images/products/fallback.svg';
+                : '/images/categories/vegetables.jpg';
         }
 
         return Storage::disk('public')->url($this->image);

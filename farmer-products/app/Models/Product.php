@@ -141,7 +141,7 @@ class Product extends Model
             ->values()
             ->all();
 
-        return $gallery === [] ? ['/images/products/fallback.svg'] : $gallery;
+        return $gallery === [] ? ['/images/categories/vegetables.jpg'] : $gallery;
     }
 
     /**
@@ -166,7 +166,7 @@ class Product extends Model
     private function resolveImagePath(?string $image): string
     {
         if (blank($image)) {
-            return '/images/products/fallback.svg';
+            return '/images/categories/vegetables.jpg';
         }
 
         if (Str::startsWith($image, ['http://', 'https://'])) {
@@ -176,7 +176,7 @@ class Product extends Model
         if (Str::startsWith($image, '/')) {
             return file_exists(public_path(ltrim($image, '/')))
                 ? $image
-                : '/images/products/fallback.svg';
+                : '/images/categories/vegetables.jpg';
         }
 
         return Storage::disk('public')->url($image);

@@ -4,7 +4,7 @@
 @section('meta_description', 'Локальные овощи, молочка, сыры, мясо, мед и домашняя выпечка с понятным происхождением, ручным подтверждением заказа и доставкой по Ижевску.')
 
 @push('head')
-    <link rel="preload" as="image" href="{{ asset('images/products/hero-farm.svg') }}" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ asset('images/hero/farm-market.jpg') }}" fetchpriority="high">
 @endpush
 
 @push('structured_data')
@@ -32,7 +32,7 @@
                     '@type' => 'Store',
                     '@id' => route('home').'#store',
                     'name' => $shopBrand['name'],
-                    'image' => asset('images/products/hero-farm.svg'),
+                    'image' => asset('images/hero/farm-market.jpg'),
                     'url' => route('home'),
                     'address' => [
                         '@type' => 'PostalAddress',
@@ -63,7 +63,7 @@
     @php
         $productCount = $categories->sum('products_count');
         $brand = $shopBrand;
-        $heroImage = \App\Support\ImageMetadata::attributes(asset('images/products/hero-farm.svg'), 1200, 860);
+        $heroImage = \App\Support\ImageMetadata::attributes(asset('images/hero/farm-market.jpg'), 1200, 860);
     @endphp
 
     <section class="hero-section hero-section--commerce">
@@ -95,7 +95,7 @@
 
             <div class="hero-card hero-card--issue">
                 <img
-                    src="/images/products/hero-farm.svg"
+                    src="/images/hero/farm-market.jpg"
                     alt="Сезонные поставки фермерских продуктов"
                     class="hero-card__image"
                     fetchpriority="high"

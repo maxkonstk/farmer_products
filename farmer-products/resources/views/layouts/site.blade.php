@@ -8,7 +8,7 @@
         $defaultRobots = request()->routeIs('cart.*', 'checkout.*', 'dashboard', 'account.*', 'profile.*') ? 'noindex,nofollow' : 'index,follow';
         $metaRobots = trim((string) $__env->yieldContent('meta_robots', $defaultRobots));
         $canonicalUrl = trim((string) $__env->yieldContent('meta_canonical', url()->current()));
-        $metaImage = trim((string) $__env->yieldContent('meta_image', asset('images/products/hero-farm.svg')));
+        $metaImage = trim((string) $__env->yieldContent('meta_image', asset('images/hero/farm-market.jpg')));
         $analytics = $shopAnalytics ?? config('shop.analytics', []);
         $analyticsProvider = $analytics['provider'] ?? 'none';
         $gaMeasurementId = trim((string) ($analytics['ga_measurement_id'] ?? ''));
