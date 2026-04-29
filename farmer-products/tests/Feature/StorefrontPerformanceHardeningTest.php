@@ -24,8 +24,8 @@ class StorefrontPerformanceHardeningTest extends TestCase
 
         $homeResponse->assertOk();
         $homeResponse->assertSee('/images/hero/farm-market.jpg', false);
-        $homeResponse->assertSee('width="1920"', false);
-        $homeResponse->assertSee('height="1440"', false);
+        $homeResponse->assertSee('width="1200"', false);
+        $homeResponse->assertSee('height="900"', false);
         $homeResponse->assertSee('sizes="(max-width: 900px) 100vw, 46vw"', false);
         $homeResponse->assertSee('sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"', false);
 

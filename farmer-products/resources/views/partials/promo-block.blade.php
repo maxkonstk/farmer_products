@@ -1,7 +1,7 @@
 @php
     $variant = $variant ?? 'grid';
     $targetLabel = $promoBlock->target_label;
-    $imageAttributes = \App\Support\ImageMetadata::attributes($promoBlock->image_url, 1200, 860);
+    $imageAttributes = \App\Support\ImageMetadata::attributes($promoBlock->image_url, 1200, 900);
 @endphp
 
 <article class="promo-card promo-card--{{ $variant }} promo-card--{{ $promoBlock->theme }}">

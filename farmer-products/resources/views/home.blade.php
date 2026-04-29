@@ -63,7 +63,7 @@
     @php
         $productCount = $categories->sum('products_count');
         $brand = $shopBrand;
-        $heroImage = \App\Support\ImageMetadata::attributes(asset('images/hero/farm-market.jpg'), 1200, 860);
+        $heroImage = \App\Support\ImageMetadata::attributes(asset('images/hero/farm-market.jpg'), 1200, 900);
     @endphp
 
     <section class="hero-section hero-section--commerce">
@@ -184,7 +184,7 @@
 
                 <div class="collection-grid">
                     @foreach ($featuredCollections as $collection)
-                        @php($imageAttributes = \App\Support\ImageMetadata::attributes($collection->image_url, 1200, 860))
+                        @php($imageAttributes = \App\Support\ImageMetadata::attributes($collection->image_url, 1200, 900))
                         <a href="{{ route('collections.show', $collection) }}" class="collection-card">
                             <div class="collection-card__media">
                                 <img
