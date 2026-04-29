@@ -40,7 +40,7 @@ class RepeatOrderTest extends TestCase
             'customer_name' => 'Покупатель',
             'phone' => '+7 (900) 000-00-00',
             'email' => 'buyer@example.com',
-            'address' => 'Самара',
+            'address' => 'Ижевск',
             'fulfillment_method' => 'delivery',
             'total_price' => 200,
             'status' => OrderStatus::NEW,

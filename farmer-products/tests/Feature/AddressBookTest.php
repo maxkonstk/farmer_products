@@ -22,9 +22,9 @@ class AddressBookTest extends TestCase
         $response = $this->actingAs($user)->post(route('account.addresses.store'), [
             'label' => 'Дом',
             'recipient_name' => 'Иван Петров',
-            'phone' => '+7 (927) 123-45-67',
-            'city' => 'Самара',
-            'address_line' => 'ул. Молодогвардейская, д. 20, кв. 15',
+            'phone' => '+7 (3412) 12-34-56',
+            'city' => 'Ижевск',
+            'address_line' => 'ул. Молодежная, д. 20, кв. 15',
             'comment' => 'Домофон 15',
             'is_default' => '1',
         ]);
@@ -61,8 +61,8 @@ class AddressBookTest extends TestCase
         $address = CustomerAddress::query()->create([
             'user_id' => $user->id,
             'label' => 'Дом',
-            'city' => 'Самара',
-            'address_line' => 'ул. Садовая, д. 12',
+            'city' => 'Ижевск',
+            'address_line' => 'ул. Пушкинская, д. 12',
             'comment' => 'Подъезд 2',
             'is_default' => true,
         ]);
@@ -71,7 +71,7 @@ class AddressBookTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('checkout.store'), [
             'customer_name' => 'Иван Петров',
-            'phone' => '+7 (927) 123-45-67',
+            'phone' => '+7 (3412) 12-34-56',
             'email' => 'ivan@example.com',
             'fulfillment_method' => 'delivery',
             'saved_address_id' => $address->id,
@@ -81,6 +81,6 @@ class AddressBookTest extends TestCase
 
         $order = Order::query()->latest()->firstOrFail();
 
-        $this->assertSame('Самара, ул. Садовая, д. 12, Подъезд 2', $order->address);
+        $this->assertSame('Ижевск, ул. Пушкинская, д. 12, Подъезд 2', $order->address);
     }
 }

@@ -33,7 +33,7 @@ class AccountAddressController extends Controller
 
         return view('account.addresses.create', [
             'address' => new CustomerAddress([
-                'city' => $brand['city'] ?? 'Самара',
+                'city' => $brand['city'] ?? 'Ижевск',
             ]),
         ]);
     }

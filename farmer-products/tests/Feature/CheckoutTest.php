@@ -27,12 +27,12 @@ class CheckoutTest extends TestCase
 
         $response = $this->post(route('checkout.store'), [
             'customer_name' => 'Тестовый покупатель',
-            'phone' => '+7 (927) 123-45-67',
+            'phone' => '+7 (3412) 12-34-56',
             'email' => 'buyer@example.com',
             'fulfillment_method' => 'delivery',
             'delivery_window' => 'tomorrow-day',
             'substitution_preference' => 'call',
-            'address' => 'г. Самара, ул. Лесная, д. 7',
+            'address' => 'г. Ижевск, ул. Лесная, д. 7',
             'comment' => 'Тестовое оформление заказа',
         ]);
 

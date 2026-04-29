@@ -25,7 +25,7 @@ class OrderSeeder extends Seeder
                 ['slug' => 'med-cvetochnyy-naturalnyy', 'quantity' => 1],
             ],
             OrderStatus::CONFIRMED,
-            'г. Самара, ул. Молодежная, д. 12, кв. 8'
+            'г. Ижевск, ул. Молодежная, д. 12, кв. 8'
         );
 
         $this->createOrder(
@@ -36,7 +36,7 @@ class OrderSeeder extends Seeder
                 ['slug' => 'yabloki-sezonnye', 'quantity' => 1],
             ],
             OrderStatus::COMPLETED,
-            'г. Самара, ул. Полевая, д. 7'
+            'г. Ижевск, ул. Полевая, д. 7'
         );
     }
 

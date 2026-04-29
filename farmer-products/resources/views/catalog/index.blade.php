@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @section('title', $currentCollection?->name ?? ($currentCategory ? $currentCategory->name : 'Каталог товаров'))
-@section('meta_description', $currentCollection?->description ?? ($currentCategory?->description ?? 'Каталог локальных фермерских продуктов: овощи, молочка, сыры, мясо, мед, выпечка и сезонные заготовки с доставкой по Самаре.'))
+@section('meta_description', $currentCollection?->description ?? ($currentCategory?->description ?? 'Каталог локальных фермерских продуктов: овощи, молочка, сыры, мясо, мед, выпечка и сезонные заготовки с доставкой по Ижевску.'))
 
 @php
     $analytics = app(\App\Services\AnalyticsService::class);

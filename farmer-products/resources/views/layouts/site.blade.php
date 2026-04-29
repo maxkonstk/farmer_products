@@ -100,7 +100,7 @@
         <div class="site-shell">
             <header class="site-header" x-data="{ mobileMenuOpen: false }">
                 <div class="site-container issue-bar">
-                    <span class="issue-bar__item">Самара · локальные хозяйства</span>
+                    <span class="issue-bar__item">Ижевск · локальные хозяйства</span>
                     <span class="issue-bar__item">{{ $delivery['cutoff'] }}</span>
                     <span class="issue-bar__item">Доставка и самовывоз без маркетплейсного шума</span>
                 </div>

@@ -245,7 +245,7 @@ class ProductSeeder extends Seeder
             ],
             'bakery' => [
                 'producer_name' => 'Пекарня «Старый двор»',
-                'origin_location' => 'Самара',
+                'origin_location' => 'Ижевск',
                 'seasonality' => 'Круглый год',
                 'taste_notes' => 'Свежая выпечка с коротким окном идеальной подачи.',
                 'storage_info' => 'Хранить при комнатной температуре в бумажном пакете.',
@@ -258,7 +258,7 @@ class ProductSeeder extends Seeder
             ],
             'preserves' => [
                 'producer_name' => 'Домашняя кухня «Садовый погребок»',
-                'origin_location' => 'Самара',
+                'origin_location' => 'Ижевск',
                 'seasonality' => 'Круглый год, зависит от урожая',
                 'taste_notes' => 'Домашний вкус без избыточного промышленного сиропа.',
                 'storage_info' => 'Хранить в темном прохладном месте, после вскрытия — в холодильнике.',

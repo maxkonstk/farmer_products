@@ -149,7 +149,7 @@
                     </div>
                     <div class="detail-fact">
                         <span>Регион</span>
-                        <strong>{{ $product->origin_location ?: 'Самарская область' }}</strong>
+                        <strong>{{ $product->origin_location ?: 'Удмуртия' }}</strong>
                     </div>
                 </div>
 
@@ -222,7 +222,7 @@
                     </div>
                     <div>
                         <dt>Регион</dt>
-                        <dd>{{ $product->origin_location ?: 'Самарская область' }}</dd>
+                        <dd>{{ $product->origin_location ?: 'Удмуртия' }}</dd>
                     </div>
                     <div>
                         <dt>Сезонность</dt>

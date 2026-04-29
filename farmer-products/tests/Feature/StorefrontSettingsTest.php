@@ -22,18 +22,18 @@ class StorefrontSettingsTest extends TestCase
             ->assertOk();
 
         $response = $this->actingAs($admin)->put(route('admin.storefront.update'), [
-            'brand_name' => 'Лавка у Волги',
+            'brand_name' => 'Лавка у Ижа',
             'brand_tagline' => 'Локальные поставки без лишнего шума.',
-            'brand_city' => 'Тольятти',
-            'brand_address' => 'г. Тольятти, ул. Юбилейная, 5',
+            'brand_city' => 'Ижевск',
+            'brand_address' => 'г. Ижевск, ул. Пушкинская, 5',
             'brand_phone' => '+7 (999) 555-44-33',
-            'brand_email' => 'hello@volga.test',
+            'brand_email' => 'hello@izh.test',
             'hero_note' => 'Собираем понятную фермерскую корзину с ручным подтверждением заказа.',
             'brand_hours' => "Пн-Пт: 09:00-20:00\nСб-Вс: 10:00-18:00",
             'delivery_cutoff' => 'Заказы до 14:00 подтверждаем в тот же день.',
-            'pickup_address' => 'г. Тольятти, ул. Юбилейная, 5',
+            'pickup_address' => 'г. Ижевск, ул. Пушкинская, 5',
             'delivery_windows' => "late-evening | Поздний вечер, 20:00-22:00\nmorning | Утро, 09:00-12:00",
-            'delivery_zones' => "Тольятти, Автозаводский район\nТольятти, Центральный район",
+            'delivery_zones' => "Ижевск, Октябрьский район\nИжевск, Центральный район",
             'delivery_promises' => "Собираем заказ после подтверждения.\nПредупреждаем о заменах заранее.",
             'storefront_promises' => "Прямые поставки от небольших хозяйств.\nПрозрачная доставка и подтверждение заказа.",
             'analytics_provider' => 'gtm',
@@ -46,16 +46,16 @@ class StorefrontSettingsTest extends TestCase
         $response->assertRedirect(route('admin.storefront.edit'));
 
         $this->assertDatabaseHas('storefront_settings', [
-            'brand_name' => 'Лавка у Волги',
-            'brand_city' => 'Тольятти',
-            'pickup_address' => 'г. Тольятти, ул. Юбилейная, 5',
+            'brand_name' => 'Лавка у Ижа',
+            'brand_city' => 'Ижевск',
+            'pickup_address' => 'г. Ижевск, ул. Пушкинская, 5',
             'analytics_provider' => 'gtm',
             'gtm_container_id' => 'GTM-TEST123',
         ]);
 
         $this->withCookie('shop_cookie_consent', 'accepted:2026-04')->get(route('home'))
             ->assertOk()
-            ->assertSee('Лавка у Волги')
+            ->assertSee('Лавка у Ижа')
             ->assertSee('Собираем понятную фермерскую корзину с ручным подтверждением заказа.')
             ->assertSee('GTM-TEST123')
             ->assertSee('data-analytics-provider="gtm"', false)
@@ -64,12 +64,12 @@ class StorefrontSettingsTest extends TestCase
 
         $this->get(route('pages.contacts'))
             ->assertOk()
-            ->assertSee('г. Тольятти, ул. Юбилейная, 5')
-            ->assertSee('hello@volga.test');
+            ->assertSee('г. Ижевск, ул. Пушкинская, 5')
+            ->assertSee('hello@izh.test');
 
         $this->get(route('pages.delivery'))
             ->assertOk()
             ->assertSee('Поздний вечер, 20:00-22:00')
-            ->assertSee('Тольятти, Автозаводский район');
+            ->assertSee('Ижевск, Октябрьский район');
     }
 }

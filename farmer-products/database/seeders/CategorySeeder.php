@@ -13,7 +13,7 @@ class CategorySeeder extends Seeder
             [
                 'name' => 'Овощи',
                 'slug' => 'vegetables',
-                'description' => 'Овощи и корнеплоды короткого хранения от теплиц и небольших хозяйств Самарской области.',
+                'description' => 'Овощи и корнеплоды короткого хранения от теплиц и небольших хозяйств Удмуртии.',
                 'image' => '/images/products/vegetables.svg',
             ],
             [

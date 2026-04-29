@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('label', 60);
             $table->string('recipient_name')->nullable();
             $table->string('phone', 30)->nullable();
-            $table->string('city', 80)->default('Самара');
+            $table->string('city', 80)->default('Ижевск');
             $table->string('address_line', 180);
             $table->string('comment', 180)->nullable();
             $table->boolean('is_default')->default(false);

@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @section('title', 'Контакты')
-@section('meta_description', 'Контакты фермерской лавки: адрес, часы работы, телефон, email и зоны доставки по Самаре.')
+@section('meta_description', 'Контакты фермерской лавки: адрес, часы работы, телефон, email и зоны доставки по Ижевску.')
 
 @section('content')
     @php($brand = $shopBrand)

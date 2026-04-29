@@ -50,7 +50,7 @@
                                 <div class="checkout-option-grid">
                                     <label class="checkout-option">
                                         <input type="radio" name="fulfillment_method" value="delivery" @checked(old('fulfillment_method', 'delivery') === 'delivery')>
-                                        <span>Доставка по Самаре</span>
+                                        <span>Доставка по Ижевску</span>
                                     </label>
                                     <label class="checkout-option">
                                         <input type="radio" name="fulfillment_method" value="pickup" @checked(old('fulfillment_method') === 'pickup')>
